@@ -5,7 +5,7 @@ Student Guide
 == Instructor Details
 
 Matt Stine (https://twitter.com/mstine[@mstine]) +
-Consultant Engineer / Senior Project Manager - Pivotal +
+Principal Project Manager - Pivotal +
 mstine@pivotal.io
 
 == Prerequsities
@@ -14,18 +14,17 @@ include::prerequisites.adoc[]
 
 == Schedule
 
-_This is a *loose* schedule for the day to give us some structure.
-We will adjust as necessary based on our flow through the content.
-Our only fixed break is lunch._
+This is a *loose* schedule for the day to give us some structure.
+We will adjust as necessary based on our flow through the content and actual timing of meal catering.
 
- 8:00 AM - 9:00 AM:: Workshop Registration
- 9:00 AM - 10:00 AM:: *Session 1*: _Cloud Native Application Architecture Overview_
-10:00 AM - 10:15 AM:: Morning Brain Break
- 9:45 AM - 12:30 PM:: *Session 2*: _Building and Composing Cloud Native Applications_
-12:30 PM - 1:30 PM:: Lunch
- 1:30 PM - 3:00 PM:: *Session 3*: _Testing and Delivering Cloud Native Applications_
- 3:00 PM - 3:15 PM:: Afternoon Brain Break
- 3:15 PM - 5:15 PM:: *Session 4*: _Deploying and Running Cloud Native Applications_
+ 9:00 AM - 9:30 AM:: Breakfast
+ 9:30 AM - 10:30 AM:: *Session 1*: _Cloud Native Application Architecture Overview_
+10:30 AM - 10:45 AM:: Morning Brain Break
+10:45 AM - 12:30 PM:: *Session 2*: _Building and Composing Cloud Native Applications_
+12:30 PM - 1:00 PM:: Lunch
+ 1:00 PM - 2:30 PM:: *Session 3*: _Refactoring the Monolith: LIVE!_
+ 2:30 PM - 2:45 PM:: Afternoon Brain Break
+ 2:45 PM - 4:00 PM:: *Session 4*: _Deploying and Running Cloud Native Applications_
 
 == First Things First
 
@@ -39,10 +38,10 @@ Pivotal Web Services is a hosted instance of http://cloudfoundry.org[Cloud Found
 ** link:lab_01.html[Lab 1 - Getting Started with Spring Boot]
 ** link:lab_02.html[Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator]
 ** link:lab_03.html[Lab 3 - Composing Cloud Native Apps with Spring Cloud and Netflix OSS]
-* Session 3 (link:session_03.pdf[Slides])
-** link:lab_04.html[Lab 4 - Creating a Contract Test with Pact JVM]
-** link:lab_05.html[Lab 5 - Verifying a Contract with Pact JVM]
-** link:lab_06.html[Lab 6 - Publishing a Contract to Pact Broker]
+* Session 3 (materials can be found in at https://github.com/mstine/RefactoringTheMonolith[Refactoring the Monolith: LIVE!])
+** https://github.com/mstine/RefactoringTheMonolith/blob/master/README.adoc[Overview]
+** https://github.com/mstine/RefactoringTheMonolith/blob/master/docs/refactoring.adoc[Detailed Documentation of the Refactoring]
+** https://github.com/mstine/RefactoringTheMonolith/tree/master/code/restaurant[Code]
 * Session 4 (link:session_04.pdf[Slides])
 ** link:lab_07.html[Lab 7 - From Zero to Pushing Your First Application]
 ** link:lab_08.html[Lab 8 - Binding to Cloud Foundry Services]
