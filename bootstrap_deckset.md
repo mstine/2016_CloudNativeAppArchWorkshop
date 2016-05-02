@@ -1,4 +1,4 @@
-# [fit] 1. Network SSID: Marriott_CONFERENCE  --  Password: arch
+# [fit] 1. Network SSID: TBD  --  Password: TBD
 
 # [fit] 2. Clone the following GitHub repository:
 
