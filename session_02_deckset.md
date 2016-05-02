@@ -149,12 +149,17 @@ slidenumbers: true
 
 ---
 
-# Config Server `app.groovy`
+# Config Server
 
 ```java
-@Grab("org.springframework.cloud:spring-cloud-starter-bus-amqp:1.0.0.RC1")
+@SpringBootApplication
 @EnableConfigServer
-class ConfigServer {
+public class ConfigServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServerApplication.class, args);
+    }
+
 }
 ```
 
@@ -186,29 +191,41 @@ greeting: Bonjour
 
 ---
 
-# Config Client `app.groovy`
+# Config Client
 
 ```java
-@Grab("org.springframework.cloud:spring-cloud-starter-bus-amqp:1.0.0.RC1")
+@SpringBootApplication
 @RestController
-class BasicConfig {
+public class DistConfigApplication {
 
-  @Autowired
-  Greeter greeter
+    @Autowired
+    private Greeter greeter;
 
-  @RequestMapping("/")
-  String home() {
-    "${greeter.greeting} World!"
-  }
+    @RequestMapping("/")
+    public String home() {
+        return String.format("%s World!", greeter.getGreeting());
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(DistConfigApplication.class, args);
+    }
 }
+```
+---
 
+# Config Client
+
+```java
 @Component
 @RefreshScope
-class Greeter {
+public class Greeter {
 
-  @Value('${greeting}')
-  String greeting
+    @Value("${greeting}")
+    private String greeting;
 
+    public String getGreeting() {
+        return greeting;
+    }
 }
 ```
 
@@ -262,9 +279,13 @@ spring:
 # Eureka Service Registry
 
 ```java
-@GrabExclude("ch.qos.logback:logback-classic")
+@SpringBootApplication
 @EnableEurekaServer
-class Eureka {
+public class EurekaApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaApplication.class, args);
+    }
 }
 ```
 
@@ -273,16 +294,25 @@ class Eureka {
 # Producer
 
 ```java
+@SpringBootApplication
 @EnableDiscoveryClient
 @RestController
-public class Application {
+public class ProducerApplication {
 
-  int counter = 0
+    private Log log = LogFactory.getLog(ProducerApplication.class);
+    private AtomicInteger counter = new AtomicInteger(0);
 
-  @RequestMapping("/")
-  String produce() {
-    "{\"value\": ${counter++}}"
-  }
+    @RequestMapping(value = "/", produces = "application/json")
+    public String produce() {
+        int value = counter.incrementAndGet();
+
+        log.info(String.format("Produced a value: %s", value));
+        return String.format("{\"value\": %s}", value);
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProducerApplication.class, args);
+    }
 }
 ```
 
@@ -291,26 +321,27 @@ public class Application {
 # Consumer
 
 ```java
+@SpringBootApplication
 @EnableDiscoveryClient
 @RestController
-public class Application {
+public class ConsumerApplication {
 
-  @Autowired
-  DiscoveryClient discoveryClient
+    @Autowired
+    private DiscoveryClient discoveryClient;
 
-  @RequestMapping("/")
-  String consume() {
-    InstanceInfo instance = discoveryClient.getNextServerFromEureka("PRODUCER", false)
+    @RequestMapping("/")
+    public String consume() {
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PRODUCER", false);
 
-    RestTemplate restTemplate = new RestTemplate()
-    ProducerResponse response = restTemplate.getForObject(instance.homePageUrl, ProducerResponse.class)
+        RestTemplate restTemplate = new RestTemplate();
+        ProducerResponse response = restTemplate.getForObject(instance.getHomePageUrl(), ProducerResponse.class);
 
-    "{\"value\": ${response.value}}"
-  }
-}
+        return String.format("{\"value\": %s}", response.getValue());
+    }
 
-public class ProducerResponse {
-  Integer value
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class, args);
+    }
 }
 ```
 
@@ -334,18 +365,28 @@ public class ProducerResponse {
 # Consumer with Load Balancer
 
 ```java
-@Autowired
-LoadBalancerClient loadBalancer
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class ConsumerRibbonApplication {
 
-@RequestMapping("/")
-String consume() {
-  ServiceInstance instance = loadBalancer.choose("producer")
-  URI producerUri = URI.create("http://${instance.host}:${instance.port}");
+    @Autowired
+    private LoadBalancerClient loadBalancer;
 
-  RestTemplate restTemplate = new RestTemplate()
-  ProducerResponse response = restTemplate.getForObject(producerUri, ProducerResponse.class)
+    @RequestMapping("/")
+    public String consume() {
+        ServiceInstance instance = loadBalancer.choose("producer");
+        URI producerUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
 
-  "{\"value\": ${response.value}}"
+        RestTemplate restTemplate = new RestTemplate();
+        ProducerResponse response = restTemplate.getForObject(producerUri, ProducerResponse.class);
+
+        return String.format("{\"value\": %s}", response.getValue());
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerRibbonApplication.class, args);
+    }
 }
 ```
 
@@ -354,14 +395,25 @@ String consume() {
 # Consumer with Ribbon-enabled `RestTemplate`
 
 ```java
-@Autowired
-RestTemplate restTemplate
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class ConsumerRestTemplateApplication {
 
-@RequestMapping("/")
-String consume() {
-  ProducerResponse response = restTemplate.getForObject("http://producer", ProducerResponse.class)
+    @Autowired
+    @LoadBalanced
+    private RestTemplate restTemplate;
 
-  "{\"value\": ${response.value}}"
+    @RequestMapping("/")
+    public String consume() {
+        ProducerResponse response = restTemplate.getForObject("http://producer", ProducerResponse.class);
+
+        return String.format("{\"value\": %s}", response.getValue());
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerRestTemplateApplication.class, args);
+    }
 }
 ```
 
@@ -373,8 +425,8 @@ String consume() {
 @FeignClient("producer")
 public interface ProducerClient {
 
-  @RequestMapping(method = RequestMethod.GET, value = "/")
-  ProducerResponse getValue();
+    @RequestMapping(method = RequestMethod.GET, value = "/")
+    ProducerResponse getValue();
 }
 ```
 
@@ -387,21 +439,20 @@ public interface ProducerClient {
 @EnableFeignClients
 @EnableDiscoveryClient
 @RestController
-public class Application {
+public class ConsumerFeignApplication {
 
-  @Autowired
-  ProducerClient client;
+    @Autowired
+    ProducerClient client;
 
-  @RequestMapping("/")
-  String consume() {
-    ProducerResponse response = client.getValue();
+    @RequestMapping("/")
+    String consume() {
+        ProducerResponse response = client.getValue();
+        return String.format("{\"value\": %s}", response.getValue());
+    }
 
-    return "{\"value\": " + response.getValue() + "}";
-  }
-
-  public static void main(String[] args) {
-    SpringApplication.run(Application.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerFeignApplication.class, args);
+    }
 }
 ```
 
@@ -423,24 +474,27 @@ public class Application {
 
 ---
 
-# Consumer `app.groovy`
+# Consumer with Hystrix
 
 ```java
+@SpringBootApplication
 @EnableDiscoveryClient
 @EnableCircuitBreaker
 @RestController
-public class Application {
+public class ConsumerHystrixApplication {
 
-  @Autowired
-  ProducerClient client
+    @Autowired
+    ProducerClient client;
 
-  @RequestMapping("/")
-  String consume() {
-    ProducerResponse response = client.getProducerResponse()
+    @RequestMapping("/")
+    String consume() {
+        ProducerResponse response = client.getValue();
+        return String.format("{\"value\": %s}", response.getValue());
+    }
 
-    "{\"value\": ${response.value}}"
-  }
-
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerHystrixApplication.class, args);
+    }
 }
 ```
 
@@ -452,17 +506,18 @@ public class Application {
 @Component
 public class ProducerClient {
 
-  @Autowired
-  RestTemplate restTemplate
+    @Autowired
+    @LoadBalanced
+    RestTemplate restTemplate;
 
-  @HystrixCommand(fallbackMethod = "getProducerFallback")
-  ProducerResponse getProducerResponse() {
-    restTemplate.getForObject("http://producer", ProducerResponse.class)
-  }
+    @HystrixCommand(fallbackMethod = "getProducerFallback")
+    public ProducerResponse getValue() {
+        return restTemplate.getForObject("http://producer", ProducerResponse.class);
+    }
 
-  ProducerResponse getProducerFallback() {
-    new ProducerResponse(value: 42)
-  }
+    private ProducerResponse getProducerFallback() {
+        return new ProducerResponse(42);
+    }
 }
 ```
 
@@ -488,12 +543,13 @@ public class ProducerClient {
 # Hystrix Dashboard
 
 ```java
-@Grab("org.springframework.cloud:spring-cloud-starter-hystrix-dashboard:1.0.0.RC1")
-
-import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard
-
+@SpringBootApplication
 @EnableHystrixDashboard
-class HystrixDashboard {
+public class HystrixDashboardApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(HystrixDashboardApplication.class, args);
+    }
 }
 ```
 
