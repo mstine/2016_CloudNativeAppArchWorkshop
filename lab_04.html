@@ -423,13 +423,285 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>Lab 4 - Operating Cloud Native Architectures with Spring Cloud</h1>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
-<p>TODO</p>
+<p>In this lab we&#8217;re going to leverage some of the operability helps provided by Spring Cloud to monitor, manage, and troubleshoot our Fortune Teller application.
+We&#8217;ll work with the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://cloud.spring.io/spring-cloud-config/">Spring Cloud Bus</a>, which enables us to refresh the configuration values used by our microservices without restarting or redeploying them.</p>
+</li>
+<li>
+<p><a href="https://github.com/Netflix/Hystrix/wiki/Dashboard">Hystrix Dashboard</a>, which enables us to monitor the status of our application&#8217;s circuit breakers.</p>
+</li>
+<li>
+<p><a href="http://zipkin.io/">Zipkin</a>, which enables us to determine the sources of latency in our microservice call graphs.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_setting_up_the_cloud_bus">Setting up the Cloud Bus</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Because everyone in the class will be pushing configuration changes to GitHub, you&#8217;ll need your own fork of the config repository.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Visit <a href="https://github.com/mstine/config-repo" class="bare">https://github.com/mstine/config-repo</a> in a browser and click on <strong>Fork</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/fork-config-repo.png" alt="fork config repo">
+</div>
+</div>
+</li>
+<li>
+<p>Once your fork is completed, grab the clone URL:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/clone-config-repo-fork.png" alt="clone config repo fork">
+</div>
+</div>
+</li>
+<li>
+<p>Clone your <code>config-repo</code> fork with a command similar to the following, but substituting the location of your fork:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ git clone https://github.com/cna-student/config-repo.git</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now we need to point our Config Server at our forked repo. If you haven&#8217;t already, shutdown all of the Spring Cloud apps using CTRL-C.</p>
+</li>
+<li>
+<p>Open the file <code>$COURSE_HOME/labs/initial/fortune-teller/config/configserver.yml</code> in a text editor. Change line 8 to have the location of your fork. Example:</p>
+<div class="listingblock">
+<div class="content">
+<pre>uri: https://github.com/cna-student/config-repo.git</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now restart the Spring Cloud apps:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ spring cloud kafka configserver eureka hystrixdashboard zipkin</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Finally, we&#8217;re going to set up an ngrok server and use it to create a webhook on our GitHub fork. This will tell GitHub to hit the <code>/monitor</code> endpoint on our Config Server every time we push changes to our fork.</p>
+<div class="paragraph">
+<p>Ngrok is a public service that will proxy calls from the Internet to services running on a private network, such as your laptop!</p>
+</div>
+<div class="paragraph">
+<p>Start out by running ngrok:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>ngrok http 8888</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>ngrok by @inconshreveable                                                                                                      (Ctrl+C to quit)
+
+Session Status                online
+Version                       2.1.14
+Region                        United States (us)
+Web Interface                 http://127.0.0.1:4040
+Forwarding                    http://af99a652.ngrok.io -&gt; localhost:8888
+Forwarding                    https://af99a652.ngrok.io -&gt; localhost:8888
+
+Connections                   ttl     opn     rt1     rt5     p50     p90
+                              0       0       0.00    0.00    0.00    0.00</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Next we&#8217;ll create the actual webhook on our repository. On your GitHub fork, click on <strong>Settings</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/config-repo-fork-settings.png" alt="config repo fork settings">
+</div>
+</div>
+</li>
+<li>
+<p>Next, click on <strong>Webhooks</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/click-on-webhooks.png" alt="click on webhooks">
+</div>
+</div>
+</li>
+<li>
+<p>Next, click on <strong>Add webhook</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/add-webhook.png" alt="add webhook">
+</div>
+</div>
+</li>
+<li>
+<p>Finally, complete the webhook form by pasting the <code>https</code> version of the URL from ngrok&#8217;s output, followed by <code>/monitor</code>, and then click <strong>Add webhook</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/webhook-form.png" alt="webhook form">
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Congratulations! You&#8217;ve successfully created a webhook that will send push events to the Config Server running on your laptop!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_changing_log_levels_at_runtime">Changing Log Levels at Runtime</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Have you ever been troubleshooting an issue that would no longer manifest after restarting the application, but you also wanted to change the log level?
+We now have a solution to that problem!</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start out by adding some <code>DEBUG</code> level logs to our microservices.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Begin by adding a <code>Logger</code> to <code>io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>Logger logger = LoggerFactory.getLogger(FortuneController.class);</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Next, add a <code>DEBUG</code> log statement to <code>FortuneController.randomFortune</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>logger.debug("Handling request to /random!");</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now add a <code>Logger</code> to <code>io.spring.cloud.samples.fortuneteller.ui.UiController</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>Logger logger = LoggerFactory.getLogger(UiController.class);</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Then, add a <code>DEBUG</code> log statement to:
+<code>UiController.randomFortune</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>logger.debug("Handling request to /random!");</pre>
+</div>
+</div>
+</li>
+<li>
+<p>We also need to add the Spring Cloud Bus dependencies to our microservices. Add the following to <code>pom.xml</code> for both <code>fortune-teller-fortune-service</code> and <code>fortue-teller-ui</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-bus-kafka&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and start both the Fortune Service and the Fortune UI.</p>
+</li>
+<li>
+<p>Access <a href="http://localhost:8081" class="bare">http://localhost:8081</a> in the browser. You should <strong>not</strong> see your newly added log messages in either applications' consoles.</p>
+</li>
+<li>
+<p>Now it&#8217;s time to change the log level at runtime. In your locally cloned fork of the config repo, edit the file <code>application.yml</code>. Change line 6 such that the logging section now appears as follows:</p>
+<div class="listingblock">
+<div class="content">
+<pre>logging:
+  level:
+    io:
+      spring:
+        cloud:
+          samples: DEBUG</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Commit your change:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ git commit -am "change logging level to DEBUG"
+[master c06d8cd] change logging level to DEBUG
+ 1 file changed, 1 insertion(+), 1 deletion(-)</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Push your change:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ git push origin master
+Counting objects: 3, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 308 bytes | 0 bytes/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/cna-student/config-repo.git
+   ff8d29e..7f4bbf8  master -&gt; master</pre>
+</div>
+</div>
+</li>
+<li>
+<p>You should see that ngrok has received a <code>POST</code> event to <code>/monitor</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>HTTP Requests
+-------------
+
+POST /monitor                  200</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should also see a log message in each of your applications indicating that the <code>logging</code> properties were updated:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>2016-10-13 18:04:48.154  INFO 38665 --- [afka-listener-1] o.s.cloud.bus.event.RefreshListener      : Received remote refresh request. Keys refreshed [logging.level.io.spring.cloud.samples]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Access <a href="http://localhost:8081" class="bare">http://localhost:8081</a> in the browser. You <strong>should</strong> see your newly added log messages in both applications' consoles (e.g.):</p>
+<div class="listingblock">
+<div class="content">
+<pre>2016-10-13 18:07:38.016 DEBUG 38667 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : Handling request to /random!</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-10-12 22:06:18 EDT
+Last updated 2016-10-13 18:09:18 EDT
 </div>
 </div>
 </body>
