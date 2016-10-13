@@ -1,5 +1,5 @@
 :compat-mode:
-= Lab 3 - Composing Cloud Native Apps with Spring Cloud and Netflix OSS
+= Lab 3 - Composing Cloud Native Architectures with Spring Cloud
 
 In this lab we're going to build a Fortune Teller application from two microservices, one that serves up random Chinese fortune cookie fortunes, and one that presents a user interface.
 The resulting application looks like the following screenshot:
@@ -10,47 +10,30 @@ We'll leverage libraries and services from Spring Cloud and Netflix OSS to help 
 
 == Bootstrapping
 
-. Choose *File -> Import*:
-+
-image::Common/images/sts_import_1.png[width=50%]
+. Import the project's `pom.xml`, found at `$COURSE_HOME/labs/initial/fortune-teller` into your IDE of choice.
 
-. Choose *Maven -> Existing Maven Projects*:
-+
-image::Common/images/sts_import_2.png[width=50%]
+. At the command line, change directories to `$COURSE_HOME/labs/initial/fortune-teller`.
 
-. Choose the project's `pom.xml`, found at `$COURSE_HOME/labs/initial/fortune-teller` and click *Finish*.
+. Run the following command:
 +
-image::Common/images/sts_import_3.png[width=50%]
+----
+$ spring cloud kafka configserver eureka hystrixdashboard zipkin
+----
++
+This command will helpfully start up the following components for us:
++
+- https://kafka.apache.org/[Apache Kafka]
+- https://cloud.spring.io/spring-cloud-config/[Spring Cloud Config Server]
+- https://github.com/Netflix/eureka/wiki[Netflix OSS Eureka]
+- https://github.com/Netflix/Hystrix/wiki/Dashboard[Netflix OSS Hystrix Dashboard]
+- http://zipkin.io/[Zipkin]
+
++
+We'll use all of these components to help us compose and operate our Fortune Teller application.
 
 == Config Server
 
-First we'll create a Spring Cloud Config Server to distribute shared configuration across our distributed system.
-This configuration will form the basis of how the entire system will compose.
-
-. In the `fortune-teller-config-server` module, add a `@EnableConfigServer` annotation to the class `io.spring.cloud.samples.fortuneteller.configserver.Application`.
-
-. Paste the following configuration properties into the file `src/main/resources/application.yml`:
-+
-----
-server:
-  port: 8888
-
-spring:
-  cloud:
-    config:
-      server:
-        git:
-          uri: https://github.com/mstine/config-repo.git
-----
-+
-These properties tell the Config Server to listen on port `8888` and to source its configuration from the Git repository found at https://github.com/mstine/config-repo.
-
-. Browse the file https://github.com/mstine/config-repo/blob/master/application.yml#L1-L18.
-These lines tell all applications using the `cloud` Spring profile how to connect to and register themselves with Eureka.
-
-. In the *Boot Dashboard*, right click on `fortune-teller-config-server` and choose *(Re)start*:
-+
-image::Common/images/sts_run_as_boot.png[width=50%]
+. Browse the file https://github.com/mstine/config-repo/blob/master/application.yml. This file contains logging configuration, Eureka configuration, and a fallback message for our fortune service.
 
 . Browse to http://localhost:8888/application/default.
 You should see output similar to the following:
@@ -60,31 +43,6 @@ image::Common/images/config_server_output.png[width=50%]
 Note that the response JSON defines a Spring `PropertySource` that contains Eureka configuration consistent with what you saw in the Git repository.
 
 == Eureka Server
-
-Next we'll create a Eureka service registry using Spring Cloud Netflix.
-This server will act as the address book our UI application will use to locate the Fortune Service.
-
-. In the `fortune-teller-eureka` module, add a `@EnableEurekaServer` annotation to the class `io.spring.cloud.samples.fortuneteller.eureka.Application`.
-
-. Paste the following configuration properties into the file `src/main/resources/application.yml`:
-+
-----
-server:
-  port: 8761
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-----
-+
-These properties tell the Eureka Server to listen on port `8761` and to configure itself in what is essentially ``standalone'' mode.
-
-. As before, in the *Boot Dashboard*, right click on `fortune-teller-eureka` and choose *(Re)start*.
 
 . Browse to http://localhost:8761.
 You should see a UI similar to the following:
@@ -96,9 +54,7 @@ image::Common/images/eureka_1.png[]
 Now that our Spring Cloud/Netflix OSS infrastructure is bootstrapped, we'll begin development of our first microservice.
 The Fortune Service will serve up a list of all fortune cookie fortunes present in its database or a single random fortune.
 
-. In the `fortune-teller-fortune-service` module, create the package `io.spring.cloud.samples.fortuneteller.fortuneservice.domain`.
-
-. Create a JPA domain class, `io.spring.cloud.samples.fortuneteller.fortuneservice.domain.Fortune`.
+. Create a JPA domain class, `io.spring.cloud.samples.fortuneteller.fortuneservice.Fortune`.
 Into that class, paste the following code:
 +
 ----
@@ -135,9 +91,7 @@ Add the appropriate imports using the IDE's quick fix feature.
 +
 This class represents the domain model for a fortune, having an unique identifier and the fortune's text.
 
-. Next, create the package `io.spring.cloud.samples.fortuneteller.fortuneservice.repositories`.
-
-. Create a Spring Data JPA repository interface, `io.spring.cloud.samples.fortuneteller.fortuneservice.repositories.FortuneRepository`.
+. Create a Spring Data JPA repository interface, `io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneRepository`.
 Into that class, paste the following code:
 +
 ----
@@ -154,9 +108,7 @@ This interface will provide all of the basic boilerplate CRUD features we'll wan
 The `@Query` annotation defines a SQL statement that will return a random ordering of the fortunes.
 We'll use this as the basis of returning a random fortune via our REST interface.
 
-. Next, create the package `io.spring.cloud.samples.fortuneteller.fortuneservice.controllers`.
-
-. Create a Spring MVC Controller class, `io.spring.cloud.samples.fortuneteller.fortuneservice.controllers.FortuneController`.
+. Create a Spring MVC Controller class, `io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController`.
 Into that class, paste the following code:
 +
 ----
@@ -184,7 +136,7 @@ Add the appropriate imports using the IDE's quick fix feature.
 This class provides the two REST endpoints of our microservice.
 The `randomFortune` method provides a `PageRequest` to limit the returned results to one.
 
-. Add `@EnableJpaRepositories` (to enable the Spring Data JPA repository we created) and `@EnableDiscoveryClient` (to switch on Eureka registration) annotations to `io.spring.cloud.samples.fortuneteller.fortuneservice.Application`.
+. Add `@EnableDiscoveryClient` (to switch on Eureka registration) annotations to `io.spring.cloud.samples.fortuneteller.fortuneservice.Application`.
 
 . Paste the following configuration properties into the file `src/main/resources/bootstrap.yml`:
 +
@@ -194,7 +146,7 @@ spring:
     name: fortunes
   cloud:
     config:
-      uri: ${vcap.services.config-service.credentials.uri:http://localhost:8888}
+      uri: http://localhost:8888
 ----
 +
 This configuration specifies the name of the application, which will be used to register the service in Eureka.
@@ -214,18 +166,21 @@ spring:
   profiles: default
   jpa:
     database: HSQL
-
----
-
-spring:
-  profiles: cloud
-  jpa:
-    database: POSTGRESQL
 ----
 +
-This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialects to be used for local development and cloud.
+This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialect to be used for local development.
 
-. As before, in the *Boot Dashboard*, right click on `fortune-teller-fortune-service` and choose *(Re)start*.
+. Build the application:
++
+----
+$ ./mvnw package
+----
+
+. Run the application:
++
+----
+$ java -jar fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+----
 
 . After the service has been running for ten seconds, refresh your Eureka browser tab.
 You should see a registration entry for the fortune service.
@@ -239,10 +194,7 @@ image::Common/images/fortune_service_output.png[]
 Now that our Fortune microservice is running, we'll begin development of our second microservice.
 The Fortune UI will serve up a AngularJS single page application that consumes the fortune service.
 
-. In the `fortune-teller-ui` module, create the package `io.spring.cloud.samples.fortuneteller.ui.services.fortunes`.
-This package will contain our integration with the fortune service.
-
-. Create the POJO `io.spring.cloud.samples.fortuneteller.ui.services.fortunes.Fortune`.
+. Create the POJO `io.spring.cloud.samples.fortuneteller.ui.Fortune`.
 Into that class, paste the following code:
 +
 ----
@@ -278,14 +230,39 @@ public class Fortune {
 +
 We will use this class to unmarshal the response from the fortune service.
 
-. Create the Spring Bean `io.spring.cloud.samples.fortuneteller.ui.services.fortunes.FortuneService`.
+. Create the Spring Bean `io.spring.cloud.samples.fortuneteller.ui.FortuneProperties`. Into that class, paste the following code:
++
+----
+@ConfigurationProperties(prefix = "fortune")
+@RefreshScope
+public class FortuneProperties {
+
+	private String fallbackFortune = "Your future is unclear.";
+
+	public String getFallbackFortune() {
+		return fallbackFortune;
+	}
+
+	public void setFallbackFortune(String fallbackFortune) {
+		this.fallbackFortune = fallbackFortune;
+	}
+
+}
+----
+
+. Create the Spring Bean `io.spring.cloud.samples.fortuneteller.ui.FortuneService`.
 Into that class, paste the following code:
 +
 ----
 @Service
+@EnableConfigurationProperties(FortuneProperties.class)
 public class FortuneService {
 
     @Autowired
+    FortuneProperties fortuneProperties;
+
+    @Autowired
+    @LoadBalanced
     RestTemplate restTemplate;
 
     @HystrixCommand(fallbackMethod = "fallbackFortune")
@@ -294,7 +271,7 @@ public class FortuneService {
     }
 
     private Fortune fallbackFortune() {
-        return new Fortune(42L, "Your future is unclear.");
+        return new Fortune(42L, fortuneProperties.getFallbackFortune());
     }
 }
 ----
@@ -307,9 +284,7 @@ The argument passed to `getForObject`, `http://fortunes/random`, will be resolve
 This method is also protected by a Hystrix circuit breaker using the `@HystrixCommand` annotation.
 If the circuit is tripped to open (due to an unhealthy fortune service), the `fallbackFortune` method will return a dummy response.
 
-. Next, create the package `io.spring.cloud.samples.fortuneteller.ui.controllers`.
-
-. Create a Spring MVC Controller class, `io.spring.cloud.samples.fortuneteller.ui.controllers.UiController`.
+. Create a Spring MVC Controller class, `io.spring.cloud.samples.fortuneteller.ui.UiController`.
 Into that class, paste the following code:
 +
 ----
@@ -332,6 +307,16 @@ This class provides the REST endpoint that will be consumed by our AngularJS UI.
 
 . Add `@EnableCircuitBreaker` (to switch on Hystrix circuit breakers) and `@EnableDiscoveryClient` (to switch on Eureka registration) annotations to `io.spring.cloud.samples.fortuneteller.ui.Application`.
 
+. Also add the following code to `io.spring.cloud.samples.fortuneteller.ui.Application` to instruct Spring Cloud Netflix to create a load-balanced `RestTemplate`:
++
+----
+@Bean
+@LoadBalanced
+public RestTemplate restTemplate() {
+  return new RestTemplate();
+}
+----
+
 . Paste the following configuration properties into the file `src/main/resources/bootstrap.yml`:
 +
 ----
@@ -340,7 +325,7 @@ spring:
     name: ui
   cloud:
     config:
-      uri: ${vcap.services.config-service.credentials.uri:http://localhost:8888}
+      uri: http://localhost:8888
 ----
 +
 This configuration specifies the name of the application, which will be used to register the service in Eureka.
@@ -364,7 +349,17 @@ fortunes:
 This configuration instructs the application to listen on port 8081.
 It also provides low cache refresh settings for the Eureka client and Ribbon to make the demo more responsive.
 
-. As before, in the *Boot Dashboard*, right click on `fortune-teller-ui` and choose *(Re)start*.
+. Build the application:
++
+----
+$ ./mvnw package
+----
+
+. Run the application:
++
+----
+$ java -jar fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+----
 
 . After the service has been running for ten seconds, refresh your Eureka browser tab.
 You should see a registration entry for the Fortune UI.
@@ -374,34 +369,6 @@ You should see a registration entry for the Fortune UI.
 image::Common/images/fortunes-ui.png[width=50%]
 
 == Hystrix Dashboard
-
-Finally, we'll add one more piece of infrastructure -- a dashboard that allows us to monitor our circuit breakers -- using Spring Cloud Netflix.
-
-. In the `fortune-teller-hystrix-dashboard` module, add `@EnableHystrixDashboard` and `@Controller` annotations to the class `io.spring.cloud.samples.fortuneteller.hystrixdashboard.Application`.
-
-. Add the following request handler method to `io.spring.cloud.samples.fortuneteller.hystrixdashboard.Application`:
-+
-----
-@RequestMapping("/")
-public String home() {
-    return "forward:/hystrix";
-}
-----
-+
-Add the appropriate imports using the IDE's quick fix feature.
-+
-This request handler will allow us to hit the default endpoint our application to interact with the Hystrix Dashboard.
-
-. Paste the following configuration properties into the file `src/main/resources/application.yml`:
-+
-----
-server:
-  port: 7979
-----
-+
-This configuration instructs the application to listen on port `7979`.
-
-. As before, in the *Boot Dashboard*, right click on `fortune-teller-hystrix-dashboard` and choose *(Re)start*.
 
 . Visit http://localhost:7979.
 You should see output similar to the following:

@@ -1,84 +1,92 @@
 :compat-mode:
-= Lab 5 - Verifying a Contract with Pact JVM
+= Lab 11 - Push Cloud Native Apps to Cloud Foundry
 
-In this lab we will verify the provider side of the consumer-driven contract by playing the ``pact'' back against the Fortune Service.
+== Build and Push!
 
-. In a terminal window, change to the directory of the fortune service:
+. Return to the _Fortune Teller_ application directory that you finished in link:lab_03.html[Lab 3]:
 +
 ----
-$ cd $COURSE_HOME/labs/initial/fortune-teller/fortune-teller-fortune-service
-----
-
-. Build the application:
-+
-----
-$ mvn packge
+$ cd $COURSE_HOME/labs/initial/fortune-teller
 ----
 
-. Run the application:
+. Using Maven, build and package the application:
 +
 ----
-$ java -jar target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+$ mvn package
 ----
 +
-The application will start running.
-Don't worry if you see a few stack traces.
-If you do not have Eureka running, this will happen.
-For this lab it is *OK*.
+Maven will automatically download all of _Fortune Teller_'s dependencies. This may take a few moments.
 
-. The necessary infrastructure for verifying a pact has already been added to `pom.xml` for the fortune service.
-Take a look and you'll see the following:
-+
-----
-<build>
-		<plugins>
-			<plugin>
-				<groupId>au.com.dius</groupId>
-				<artifactId>pact-jvm-provider-maven_2.11</artifactId>
-				<version>2.1.13</version>
-				<configuration>
-					<serviceProviders>
-						<serviceProvider>
-							<name>FortuneService</name>
-							<consumers>
-								<consumer>
-									<name>FortuneUi</name>
-									<pactFile>../fortune-teller-ui/target/pacts/FortuneUi-FortuneService.json</pactFile>
-								</consumer>
-							</consumers>
-						</serviceProvider>
-					</serviceProviders>
-				</configuration>
-			</plugin>
-		</plugins>
-</build>
-----
-+
-This uses the Pact JVM Provider Maven plugin to specify that the pact found at `../fortune-teller-ui/target/pacts/FortuneUi-FortuneService.json` should be replayed against the `FortuneService` on behalf of the `FortuneUi`.
 
-. In a separate terminal window, change to the directory of the fortune service:
+. Push the Spring Cloud services:
 +
 ----
-$ cd $COURSE_HOME/labs/initial/fortune-teller/fortune-teller-fortune-service
+$ cf push -f manifest-services.yml
+----
++
+This will push the Spring Cloud Config Server, a Eureka server, and a Hystrix Dashboard, all with random routes.
+
+. Edit `scripts/create_services.sh` to add the random routes that were generated for you:
++
+----
+cf cups config-service -p '{"uri":"http://config-server-fluxional-suttee.cfapps.io"}'
+cf cups service-registry -p '{"uri":"http://eureka-unprevalent-toper.cfapps.io"}'
+cf cs elephantsql turtle fortunes-db
 ----
 
-. Verify the pact:
+. Run `scripts/create-services.sh` to create the services that you need:
 +
 ----
-$ mvn au.com.dius:pact-jvm-provider-maven_2.11:verify
+$ scripts/create_services.sh
+Creating user provided service config-service in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
+OK
+Creating user provided service service-registry in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
+OK
+Creating service fortunes-db in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
+OK
+----
+
+. Push the microservices:
++
+----
+$ cf push -f manifest-apps.yml
 ----
 +
-You should see output similar to the following:
+This will push the fortunes service and the ui application.
+
+. In a browser, access the fortunes-ui application at the route that was created for you:
++
+image:Common/images/fortunes_1.png[]
+
+. Now, in another browser tab, access the Hystrix Dashboard at the route that was created for you.
+Enter the route for the UI application and click the ``Monitor Stream.''
++
+image:Common/images/fortunes_2.png[]
+
+. Access the fortunes-ui and show that the circuit breaker is registering successful requests.
++
+image:Common/images/fortunes_3.png[]
+
+. Stop the fortunes application:
 +
 ----
-Verifying a pact between FortuneUi and FortuneService
-  [Using file /Users/pivotal/mstine/2015/archcdms/labs/initial/fortune-teller/fortune-teller-ui/target/pacts/FortuneUi-FortuneService.json]
-  Given FortuneState
-         WARNING: Provider State ignored as there is no stateChange URL defined
-  a request for a random fortune
-    returns a response which
-      has status code 200 (OK)
-      includes headers
-        "Content-Type" with value "application/json;charset=UTF-8" (OK)
-      has a matching body (OK)
+$ cf stop fortunes
 ----
+
+. Access the fortunes-ui and see that the ``fallback fortune'' is being returned.
++
+image:Common/images/fortunes_4.png[]
+
+. Access the fortunes-ui and show that the circuit breaker is registering short-circuited requests.
++
+image:Common/images/fortunes_5.png[]
+
+. Start the fortunes application:
++
+----
+$ cf start fortunes
+----
+
+. Continue to access the fortunes-ui and watch the dashboard.
+After the fortunes service has re-registered with Eureka and the fortunes-ui load balancer caches are refreshed, you will see the circuit breaker recover.
+You should then start getting random fortunes again!

@@ -1,9 +1,33 @@
 To be successful, you'll need certain prerequisite tools installed on the laptops that you'll be bringing to the session:
 
 - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[Java 8 JDK] (not just JRE)
-- https://maven.apache.org/download.cgi[Apache Maven] (latest)
-- http://curl.haxx.se/download.html[cURL] (latest)
+
+- Install the Spring Boot CLI, version 1.4.1.RELEASE. Choose an installation method from the Spring Boot https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[reference docs].
+
+- Once you have installed the Spring Boot CLI, ensure that it is on your execution path with the following command:
++
+----
+$ spring --version
+Spring CLI v1.4.1.RELEASE
+----
++
+Assuming that this command works and you see the correct version, install the Spring Cloud CLI plugin using the following command:
++
+----
+$ spring install org.springframework.cloud:spring-cloud-cli:1.2.0.BUILD-SNAPSHOT
+Installing into: /Users/mstine/.sdkman/candidates/springboot/1.4.1.RELEASE/lib/ext
+Resolving dependencies...
+----
++
+You should see similar output, but the installation location will depend on the method you chose to install the Spring Boot CLI. The output above is based on an SDKMAN!-based installation.
+
 - https://git-scm.com/downloads[Git] (latest)
-- https://www.rabbitmq.com/download.html[RabbitMQ] (latest)
 - https://github.com/cloudfoundry/cli/releases[Cloud Foundry Client] (latest)
-- https://spring.io/tools[Spring Tool Suite] (latest)
+- https://ngrok.com/download[ngrok] (latest)
+
+- You'll need a free GitHub account. If you don't already have one, create one https://github.com/join[here].
+
+- Also, you'll need to create a Pivotal Web Services account https://console.run.pivotal.io/register[here].
+Pivotal Web Services is a hosted instance of http://cloudfoundry.org[Cloud Foundry] that is operated by http://pivotal.io[Pivotal].
+
+- You will likely find your favorite Java IDE helpful for things like auto-importing packages and classes. https://spring.io/tools[Spring Tool Suite], Eclipse, or IntelliJ IDEA are all perfectly valid choices!

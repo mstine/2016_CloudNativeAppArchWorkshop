@@ -1,11 +1,13 @@
-= Cloud Native Application Architecture Workshop
+= Delivering Cloud Native Architectures with Spring Cloud and Cloud Foundry
 
 Student Guide
 
 == Instructor Details
 
 Matt Stine (https://twitter.com/mstine[@mstine]) +
-Consultant Engineer / Senior Project Manager - Pivotal +
+Product Owner, Spring +
+Strategic Product Organization +
+Pivotal +
 mstine@pivotal.io
 
 == Prerequsities
@@ -14,38 +16,17 @@ include::prerequisites.adoc[]
 
 == Schedule
 
-_This is a *loose* schedule for the day to give us some structure.
-We will adjust as necessary based on our flow through the content.
-Our only fixed break is lunch._
-
- 8:00 AM - 9:00 AM:: Workshop Registration
- 9:00 AM - 10:00 AM:: *Session 1*: _Cloud Native Application Architecture Overview_
-10:00 AM - 10:15 AM:: Morning Brain Break
- 9:45 AM - 12:30 PM:: *Session 2*: _Building and Composing Cloud Native Applications_
+ 9:00 AM - 10:00 AM:: *Session 1*: _Cloud Native Architecture Overview_
+10:00 AM - 10:30 AM:: Morning Brain Break
+10:30 AM - 12:30 PM:: *Session 2*: _Cloud Native Architecture Labs_
 12:30 PM - 1:30 PM:: Lunch
- 1:30 PM - 3:00 PM:: *Session 3*: _Testing and Delivering Cloud Native Applications_
- 3:00 PM - 3:15 PM:: Afternoon Brain Break
- 3:15 PM - 5:15 PM:: *Session 4*: _Deploying and Running Cloud Native Applications_
-
-== First Things First
-
-. Create a Pivotal Web Services account https://console.run.pivotal.io/register[here].
-Pivotal Web Services is a hosted instance of http://cloudfoundry.org[Cloud Foundry] that is operated by http://pivotal.io[Pivotal].
 
 == Course Materials
 
 * Session 1 (link:session_01.pdf[Slides])
-* Session 2 (link:session_02.pdf[Slides])
+* Session 2 
 ** link:lab_01.html[Lab 1 - Getting Started with Spring Boot]
 ** link:lab_02.html[Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator]
-** link:lab_03.html[Lab 3 - Composing Cloud Native Apps with Spring Cloud and Netflix OSS]
-* Session 3 (link:session_03.pdf[Slides])
-** link:lab_04.html[Lab 4 - Creating a Contract Test with Pact JVM]
-** link:lab_05.html[Lab 5 - Verifying a Contract with Pact JVM]
-** link:lab_06.html[Lab 6 - Publishing a Contract to Pact Broker]
-* Session 4 (link:session_04.pdf[Slides])
-** link:lab_07.html[Lab 7 - From Zero to Pushing Your First Application]
-** link:lab_08.html[Lab 8 - Binding to Cloud Foundry Services]
-** link:lab_09.html[Lab 9 - Scaling Applications]
-** link:lab_10.html[Lab 10 - Monitoring Applications]
-** link:lab_11.html[Lab 11 - Push Cloud Native Apps to Cloud Foundry]
+** link:lab_03.html[Lab 3 - Composing Cloud Native Architectures with Spring Cloud]
+** link:lab_04.html[Lab 4 - Operating Cloud Native Architectures with Spring Cloud]
+** link:lab_11.html[Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry]
