@@ -16,7 +16,7 @@ Unpack that zip file at `$COURSE_HOME/labs/initial`.
 
 . Import the project's `pom.xml` into your editor/IDE of choice.
 
-. Add a `@RestController` annotation to the class `io.pivotal.spring.HelloSpringBootApplication`.
+. Add a `@RestController` annotation to the class `io.pivotal.spring.HelloSpringBootApplication`. Don't forget to add the necessary `import` statement.
 
 . Add the following request handler to the class `io.pivotal.spring.HelloSpringBootApplication`:
 +
@@ -27,6 +27,9 @@ public String hello() {
     return "Hello World!";
 }
 ----
++
+Don't forget to add the necessary `import` statement.
+
 
 == Build and Run with Embedded Apache Tomcat
 
@@ -56,6 +59,8 @@ You should see the application start up an embedded Apache Tomcat server on port
 ----
 Hello World!
 ----
+
+. Stop the application (e.g. via CTRL-C).
 
 == Build and Run with Embedded Eclipse Jetty
 
@@ -114,6 +119,8 @@ You should see the application start up an embedded Jetty server on port 8080:
 Hello World!
 ----
 
+. Stop the application (e.g. via CTRL-C).
+
 == Refactor to Externalize the Config
 
 . Rename `src/main/resources/application.properties` to `src/main/resources/application.yml`. Into that file, paste the following:
@@ -153,7 +160,7 @@ $ java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 Hello World!
 ----
 
-. Stop the application.
+. Stop the application (e.g. via CTRL-C).
 
 == Using Environment Variables for Config
 
@@ -169,7 +176,7 @@ $ GREETING=Ohai java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 Ohai World!
 ----
 
-. Stop the application.
+. Stop the application (e.g. via CTRL-C).
 
 == Using Spring Profiles for Config
 
@@ -204,7 +211,7 @@ $ SPRING_PROFILES_ACTIVE=spanish java -jar target/hello-spring-boot-0.0.1-SNAPSH
 Hola World!
 ----
 
-. Stop the application.
+. Stop the application (e.g. via CTRL-C).
 
 == Resolving Conflicts
 
@@ -219,5 +226,7 @@ $ SPRING_PROFILES_ACTIVE=spanish GREETING=Ohai java -jar target/hello-spring-boo
 ----
 Ohai World!
 ----
+
+. Stop the application (e.g. via CTRL-C).
 
 . Visit http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html to learn more about this outcome and the entire priority scheme for conflict resolution.
