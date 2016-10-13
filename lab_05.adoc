@@ -1,5 +1,5 @@
 :compat-mode:
-= Lab 11 - Push Cloud Native Apps to Cloud Foundry
+= Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry
 
 == Build and Push!
 

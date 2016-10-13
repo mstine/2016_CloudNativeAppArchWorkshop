@@ -24,9 +24,9 @@ include::prerequisites.adoc[]
 == Course Materials
 
 * Session 1 (link:session_01.pdf[Slides])
-* Session 2 
+* Session 2
 ** link:lab_01.html[Lab 1 - Getting Started with Spring Boot]
 ** link:lab_02.html[Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator]
 ** link:lab_03.html[Lab 3 - Composing Cloud Native Architectures with Spring Cloud]
 ** link:lab_04.html[Lab 4 - Operating Cloud Native Architectures with Spring Cloud]
-** link:lab_11.html[Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry]
+** link:lab_05.html[Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry]
