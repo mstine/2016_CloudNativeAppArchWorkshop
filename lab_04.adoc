@@ -268,3 +268,94 @@ fortune:
 . Access the fortune-teller-ui application at http://localhost:8081, see that the new ``fallback fortune'' is being returned.
 +
 image::Common/images/lucky_day.png[]
+
+== Correlated Logs with Spring Cloud Sleuth
+
+Now we're going to look at how to correlate logs across a call graph using Spring Cloud Sleuth, which automatically instruments Spring Cloud applications and adds correlation information to our logs.
+
+To look at the latency involved in a call graph, we're interested in four events:
+
+- *Client Send (CS):* the client sends a call to the remote service
+- *Server Receive (SR):* the call is received by the remote service and work begins
+- *Server Send (SS):* the server has completed work and responds to the client
+- *Client Receive (CR):* the client receives the response from the remote service
+
+Correlating these four events will help us determine how long an operation took and what the potential sources of latency are.
+
+. Add the following dependency to the `pom.xml` of both `fortune-teller-fortune-service` and `fortune-teller-ui`:
++
+----
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
+----
++
+This dependency is for Zipkin, but it adds the Sleuth dependencies transitively, and we'll need Zipkin for the next exercise.
+
+. Let's add some logs representing our events of interest. Add a `Logger` to `io.spring.cloud.samples.fortuneteller.ui.FortuneService`:
++
+----
+Logger logger = LoggerFactory.getLogger(FortuneService.class);
+----
+
+. Edit the definition of `FortuneService.randomFortune` to include logs for client send and client receive events:
++
+----
+@HystrixCommand(fallbackMethod = "fallbackFortune")
+public Fortune randomFortune() {
+  logger.info("CS: calling http://fortunes/random.");
+  Fortune fortune = restTemplate.getForObject("http://fortunes/random", Fortune.class);
+  logger.info("CR: received response from http://fortunes/random.");
+  return fortune;
+}
+----
+
+. In `fortune-teller-ui`, edit the definition of `io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController.randomFortune` to include logs for server receive and server send events:
++
+----
+@RequestMapping("/random")
+public Fortune randomFortune() {
+  logger.debug("Handling request to /random!");
+  logger.info("SR: received call to /random.");
+  List<Fortune> randomFortunes = repository.randomFortunes(new PageRequest(0, 1));
+  logger.info("SS: responding to call to /random.");
+  return randomFortunes.get(0);
+}
+----
+
+. Rebuild and restart both applications.
+
+. Access http://localhost:8081 in the browser. You should see the correlated log events in each applications' logs:
++
+.fortune-teller-ui
+----
+2016-10-16 14:06:31.625  INFO [ui,d64d19d2235e760,1c25e1b87727b7ae,false] 79564 --- [rtuneService-10] i.s.c.s.fortuneteller.ui.FortuneService  : CS: calling http://fortunes/random.
+2016-10-16 14:06:31.631  INFO [ui,d64d19d2235e760,1c25e1b87727b7ae,false] 79564 --- [rtuneService-10] i.s.c.s.fortuneteller.ui.FortuneService  : CR: received response from http://fortunes/random.
+----
++
+.fortune-teller-fortune-service
+----
+2016-10-16 14:06:31.628  INFO [fortunes,d64d19d2235e760,6b492a088a2ea3f2,false] 79517 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : SR: received call to /random.
+2016-10-16 14:06:31.629  INFO [fortunes,d64d19d2235e760,6b492a088a2ea3f2,false] 79517 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : SS: responding to call to /random.
+----
++
+Pay attention to the section of the log statement that appears in square brackets immediately after the log level:
++
+----
+[fortunes,d64d19d2235e760,6b492a088a2ea3f2,false]
+----
++
+The tokens represent the following:
++
+1. The application name (`fortunes`)
+2. The trace ID (`d64d19d2235e760`)
+3. The span ID (`6b492a088a2ea3f2`)
+4. Should this trace be exported to Zipkin (`false`)
++
+To learn more about this terminology, see this http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_features_2[section] of the Spring Cloud Sleuth documentation.
+
+
+== Distributed Tracing with Spring Cloud Sleuth and Zipkin
+
+TODO
