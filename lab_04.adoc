@@ -182,3 +182,15 @@ You should also see a log message in each of your applications indicating that t
 ----
 2016-10-13 18:07:38.016 DEBUG 38667 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : Handling request to /random!
 ----
+
+== Hystrix Dashboard
+
+. Visit http://localhost:7979.
+You should see output similar to the following:
++
+image::Common/images/hystrix_dashboard_1.png[width=50%]
+
+. Paste http://localhost:8081/hystrix.stream into the text field and click *Monitor Stream*.
+You should see output similar to the following:
++
+image::Common/images/hystrix_dashboard_2.png[width=50%]

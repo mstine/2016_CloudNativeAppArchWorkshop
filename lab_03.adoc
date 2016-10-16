@@ -367,15 +367,3 @@ You should see a registration entry for the Fortune UI.
 . Visit http://localhost:8081. You should see output similar to the following:
 +
 image::Common/images/fortunes-ui.png[width=50%]
-
-== Hystrix Dashboard
-
-. Visit http://localhost:7979.
-You should see output similar to the following:
-+
-image::Common/images/hystrix_dashboard_1.png[width=50%]
-
-. Paste http://localhost:8081/hystrix.stream into the text field and click *Monitor Stream*.
-You should see output similar to the following:
-+
-image::Common/images/hystrix_dashboard_2.png[width=50%]
