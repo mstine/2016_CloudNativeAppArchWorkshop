@@ -183,14 +183,88 @@ You should also see a log message in each of your applications indicating that t
 2016-10-13 18:07:38.016 DEBUG 38667 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : Handling request to /random!
 ----
 
+. Leave both fortune applications running for the next set of exercises!
+
 == Hystrix Dashboard
+
+You should already have the Hystrix Dashboard running based on the `spring cloud` command that you ran during the *Cloud Bus* exercise.
 
 . Visit http://localhost:7979.
 You should see output similar to the following:
 +
-image::Common/images/hystrix_dashboard_1.png[width=50%]
+image::Common/images/hystrix_dashboard_1.png[]
 
 . Paste http://localhost:8081/hystrix.stream into the text field and click *Monitor Stream*.
 You should see output similar to the following:
 +
-image::Common/images/hystrix_dashboard_2.png[width=50%]
+image::Common/images/hystrix_dashboard_2.png[]
+
+. In a browser, access the fortune-teller-ui application at http://localhost:8081 and show that the circuit breaker is registering successful requests.
++
+image::Common/images/fortunes_3.png[]
+
+. Stop the fortune-teller-fortune-service application.
+
+. Access the fortune-teller-ui application at http://localhost:8081, see that the ``fallback fortune'' is being returned, and show that the circuit breaker is registering short-circuited requests.
++
+image::Common/images/fortunes_4.png[]
++
+image::Common/images/fortunes_5.png[]
+
+. Restart the fortune-teller-fortune-service application.
+
+. Continue to access the fortune-teller-ui and watch the dashboard.
+After the fortune-teller-fortune-service has re-registered with Eureka and the fortune-teller-ui load balancer caches are refreshed, you will see the circuit breaker recover.
+You should then start getting random fortunes again!
+
+== Swapping Out Fallback Behavior with Cloud Bus
+
+The Spring Cloud Bus is not only useful for swapping out log levels. Let's use it to swap out a developer defined property instead.
+
+. Take a look at `io.spring.cloud.samples.fortuneteller.ui.FortuneProperties`:
++
+----
+@ConfigurationProperties(prefix = "fortune") // <1>
+@RefreshScope // <2>
+public class FortuneProperties {
+
+    private String fallbackFortune = "Your future is unclear."; // <3>
+
+    public String getFallbackFortune() {
+        return fallbackFortune;
+    }
+
+    public void setFallbackFortune(String fallbackFortune) {
+        this.fallbackFortune = fallbackFortune;
+    }
+
+}
+----
+<1> `FortuneProperties` is annotated as a `@ConfigurationProperties` object. These objects provide a type-safe mechanism for handling configuration. Learn more from the following  http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config-typesafe-configuration-properties[documentation].
+<2> `FortuneProperties` is also scoped as `@RefreshScope`. This will cause it to be reinitialized based on configuration changes. Learn more from the following http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_refresh_scope[documentation].
+<3> `fallbackFortune` has a default value that is equivalent to what we have in our config repo. Config Server configuration overrides any local configuration by default, so this value is not actually causing the runtime behavior of our app at this time.
+
+. Stop the `fortune-teller-fortune-service` application.
+
+. Access the fortune-teller-ui application at http://localhost:8081, see that the ``fallback fortune'' is being returned.
++
+image::Common/images/fortunes_4.png[]
+
+. In your local clone of the config repo fork, edit line 9 such that the `fortune` section looks like the following:
++
+----
+fortune:
+  fallbackFortune: Today is your lucky day!
+----
+
+. Save, commit, and push your changes to GitHub.
+
+. You should see a statement in the fortune-teller-ui application's logs indicating that the `fortune.fallbackFortune` property was refreshed:
++
+----
+2016-10-16 13:31:39.516  INFO 74890 --- [afka-listener-1] o.s.cloud.bus.event.RefreshListener      : Received remote refresh request. Keys refreshed [fortune.fallbackFortune]
+----
+
+. Access the fortune-teller-ui application at http://localhost:8081, see that the new ``fallback fortune'' is being returned.
++
+image::Common/images/lucky_day.png[]
