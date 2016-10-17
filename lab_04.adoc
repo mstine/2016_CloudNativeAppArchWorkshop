@@ -358,4 +358,39 @@ To learn more about this terminology, see this http://cloud.spring.io/spring-clo
 
 == Distributed Tracing with Spring Cloud Sleuth and Zipkin
 
-TODO
+Now let's take a look at Zipkin, which is a distributed tracing system purpose built for this type of latency analysis. Luckily we already have Zipkin running, and our app has already been emitting span data to Zipkin.
+
+Because Sleuth is _sampling_ the requests at a rate of 10%, you may need to generate some additional load on the application in order to get enough data into Zipkin to be useful. Alternatively, you can adjust the sampling rate directly on the `fortune-teller-ui` application by adding the following to `application.yml`:
+
+----
+spring:
+  sleuth:
+    sampler:
+      percentage: 0.5 #Sample 50%
+----
+
+and then restarting the application.
+
+. Visit http://localhost:9411 in the browser. You'll see the Zipkin landing page, which allows you to query for tracing data. Currently _fortunes_ is the service selected for query, so the query will find traces including span data for it. Click on the *Find Traces*:
++
+image::Common/images/zipkin_1.png[]
+
+. You'll see a list of traces from which to choose. Click on one to drill down into that trace. In this screenshot, I've hovered over a trace with a total latency of 34.244ms, and 88% of that time was spent in the _fortunes_ service:
++
+image::Common/images/zipkin_2.png[]
+
+. After drilling down into a trace, you'll see a graph of all of the spans in that trace. In this case we have four. I'm drilling down into the span that captures the _ui_ service call to the _fortunes_ service:
++
+image::Common/images/zipkin_3.png[]
+
+. After drilling down into that service call, I get a popup window containing all of the event data (i.e. the CS/SR/SS/CR timestamped events) and tag data (key/value pairs such as `http.method`):
++
+image::Common/images/zipkin_4.png[]
+
+. Finally, because Zipkin has access to a nice sample of all of the traffic flowing through my service graph, it can generate a dependency graph of all of the services. Click on *Dependencies*:
++
+image::Common/images/zipkin_4b.png[]
++
+And you'll see the graph:
++
+image::Common/images/zipkin_5.png[]
