@@ -144,13 +144,9 @@ The `randomFortune` method provides a `PageRequest` to limit the returned result
 spring:
   application:
     name: fortunes
-  cloud:
-    config:
-      uri: http://localhost:8888
 ----
 +
 This configuration specifies the name of the application, which will be used to register the service in Eureka.
-It also tells the service how to locate the config server.
 
 . Paste the following configuration properties into the file `src/main/resources/application.yml`:
 +
@@ -160,15 +156,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
 
----
-
-spring:
-  profiles: default
-  jpa:
-    database: HSQL
+security:
+  basic:
+    enabled: false
 ----
 +
-This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialect to be used for local development.
+This configuration specifies the model to DDL setting to be used by Hibernate. It also disables basic authentication, which we'll need for Lab 5.
 
 . Build the application:
 +
@@ -323,13 +316,9 @@ public RestTemplate restTemplate() {
 spring:
   application:
     name: ui
-  cloud:
-    config:
-      uri: http://localhost:8888
 ----
 +
 This configuration specifies the name of the application, which will be used to register the service in Eureka.
-It also tells the service how to locate the config server.
 
 . Paste the following configuration properties into the file `src/main/resources/application.yml`:
 +
@@ -344,10 +333,15 @@ eureka:
 fortunes:
   ribbon:
     ServerListRefreshInterval: 5000
+
+security:
+  basic:
+    enabled: false
 ----
 +
 This configuration instructs the application to listen on port 8081.
 It also provides low cache refresh settings for the Eureka client and Ribbon to make the demo more responsive.
+Finally, it also disables basic authentication, which we'll need for Lab 5.
 
 . Build the application:
 +
