@@ -9,20 +9,6 @@ fortunes:
   ribbon:
     ServerListRefreshInterval: 5000
 
----
-
-spring:
-  profiles: pact
-
-ribbon:
-  eureka:
+security:
+  basic:
     enabled: false
-
-hystrix:
-  command:
-    randomFortune:
-      execution.isolation.thread.timeoutInMilliseconds: 2000
-
-fortunes:
-  ribbon:
-    listOfServers: localhost:8080

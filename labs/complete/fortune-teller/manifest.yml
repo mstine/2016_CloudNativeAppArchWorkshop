@@ -1,0 +1,19 @@
+applications:
+- name: fortune-service
+  memory: 1024M
+  host: fortunes-${random-word}
+  path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+  services:
+  - fortunes-db
+  - config-server
+  - service-registry
+- name: fortune-ui
+  memory: 1024M
+  host: fortunes-ui-${random-word}
+  path: fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+  services:
+  - config-server
+  - service-registry
+  - circuit-breaker-dashboard
+env:
+  CF_TARGET: https://api.run.pivotal.io
