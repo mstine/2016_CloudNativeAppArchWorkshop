@@ -5,4 +5,4 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/mstine/config-repo
+          uri: https://github.com/mstine/config-repo.git
