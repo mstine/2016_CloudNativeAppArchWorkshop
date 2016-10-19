@@ -1,5 +1,7 @@
 = Lab 1 - Getting Started with Spring Boot
 
+_A completed version of this lab is found at `$COURSE_HOME/labs/complete/hello-spring-boot`._
+
 == Bootstrap the Project
 
 . In your browser, visit http://start.spring.io.

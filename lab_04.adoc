@@ -1,6 +1,8 @@
 :compat-mode:
 = Lab 4 - Operating Cloud Native Architectures with Spring Cloud
 
+_A completed version of this lab is found at `$COURSE_HOME/labs/complete/fortune-teller`._
+
 In this lab we're going to leverage some of the operability helps provided by Spring Cloud to monitor, manage, and troubleshoot our Fortune Teller application.
 We'll work with the following:
 

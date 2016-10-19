@@ -1,6 +1,8 @@
 :compat-mode:
 = Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry
 
+_A completed version of this lab is found at `$COURSE_HOME/labs/complete/fortune-teller-cf`._
+
 Cloud Foundry is an open source platform for running cloud native application architectures. It operates under the tenants of the Cloud Foundry haiku:
 
 ____

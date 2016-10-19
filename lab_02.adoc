@@ -1,5 +1,7 @@
 = Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator
 
+_A completed version of this lab is found at `$COURSE_HOME/labs/complete/hello-spring-boot`._
+
 == Set up the Actuator
 
 . Continue with the project you completed in link:lab_01.html[Lab 1].

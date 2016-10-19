@@ -14,6 +14,10 @@ mstine@pivotal.io
 
 include::prerequisites.adoc[]
 
+== First Things First
+
+Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1zYFoGLMoiZIpAnyRQU7wLtdvEbL2LeDQ6e2Jbnl85PQ/edit#gid=0[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
+
 == Schedule
 
  9:00 AM - 10:00 AM:: *Session 1*: _Cloud Native Architecture Overview_

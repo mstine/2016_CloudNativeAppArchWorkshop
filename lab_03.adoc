@@ -1,6 +1,8 @@
 :compat-mode:
 = Lab 3 - Composing Cloud Native Architectures with Spring Cloud
 
+_A completed version of this lab is found at `$COURSE_HOME/labs/complete/fortune-teller`._
+
 In this lab we're going to build a Fortune Teller application from two microservices, one that serves up random Chinese fortune cookie fortunes, and one that presents a user interface.
 The resulting application looks like the following screenshot:
 
