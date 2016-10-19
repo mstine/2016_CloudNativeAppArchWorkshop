@@ -14,7 +14,7 @@ Spring CLI v1.4.1.RELEASE
 Assuming that this command works and you see the correct version, install the Spring Cloud CLI plugin using the following command:
 +
 ----
-$ spring install org.springframework.cloud:spring-cloud-cli:1.2.0.BUILD-SNAPSHOT
+$ spring install org.springframework.cloud:spring-cloud-cli:1.2.1.RELEASE
 Installing into: /Users/mstine/.sdkman/candidates/springboot/1.4.1.RELEASE/lib/ext
 Resolving dependencies...
 ----
