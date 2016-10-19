@@ -641,15 +641,11 @@ The <code>randomFortune</code> method provides a <code>PageRequest</code> to lim
 <div class="content">
 <pre>spring:
   application:
-    name: fortunes
-  cloud:
-    config:
-      uri: http://localhost:8888</pre>
+    name: fortunes</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This configuration specifies the name of the application, which will be used to register the service in Eureka.
-It also tells the service how to locate the config server.</p>
+<p>This configuration specifies the name of the application, which will be used to register the service in Eureka.</p>
 </div>
 </li>
 <li>
@@ -661,16 +657,13 @@ It also tells the service how to locate the config server.</p>
     hibernate:
       ddl-auto: create-drop
 
----
-
-spring:
-  profiles: default
-  jpa:
-    database: HSQL</pre>
+security:
+  basic:
+    enabled: false</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialect to be used for local development.</p>
+<p>This configuration specifies the model to DDL setting to be used by Hibernate. It also disables basic authentication, which we&#8217;ll need for Lab 5.</p>
 </div>
 </li>
 <li>
@@ -859,15 +852,11 @@ public RestTemplate restTemplate() {
 <div class="content">
 <pre>spring:
   application:
-    name: ui
-  cloud:
-    config:
-      uri: http://localhost:8888</pre>
+    name: ui</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This configuration specifies the name of the application, which will be used to register the service in Eureka.
-It also tells the service how to locate the config server.</p>
+<p>This configuration specifies the name of the application, which will be used to register the service in Eureka.</p>
 </div>
 </li>
 <li>
@@ -883,12 +872,17 @@ eureka:
 
 fortunes:
   ribbon:
-    ServerListRefreshInterval: 5000</pre>
+    ServerListRefreshInterval: 5000
+
+security:
+  basic:
+    enabled: false</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>This configuration instructs the application to listen on port 8081.
-It also provides low cache refresh settings for the Eureka client and Ribbon to make the demo more responsive.</p>
+It also provides low cache refresh settings for the Eureka client and Ribbon to make the demo more responsive.
+Finally, it also disables basic authentication, which we&#8217;ll need for Lab 5.</p>
 </div>
 </li>
 <li>
@@ -923,37 +917,10 @@ You should see a registration entry for the Fortune UI.</p>
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_hystrix_dashboard">Hystrix Dashboard</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Visit <a href="http://localhost:7979" class="bare">http://localhost:7979</a>.
-You should see output similar to the following:</p>
-<div class="imageblock">
-<div class="content">
-<img src="Common/images/hystrix_dashboard_1.png" alt="hystrix dashboard 1" width="50%">
-</div>
-</div>
-</li>
-<li>
-<p>Paste <a href="http://localhost:8081/hystrix.stream" class="bare">http://localhost:8081/hystrix.stream</a> into the text field and click <strong>Monitor Stream</strong>.
-You should see output similar to the following:</p>
-<div class="imageblock">
-<div class="content">
-<img src="Common/images/hystrix_dashboard_2.png" alt="hystrix dashboard 2" width="50%">
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-10-12 22:05:48 EDT
+Last updated 2016-10-18 17:42:30 BST
 </div>
 </div>
 </body>

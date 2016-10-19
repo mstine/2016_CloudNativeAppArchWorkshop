@@ -694,6 +694,366 @@ POST /monitor                  200</pre>
 </div>
 </div>
 </li>
+<li>
+<p>Leave both fortune applications running for the next set of exercises!</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hystrix_dashboard">Hystrix Dashboard</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You should already have the Hystrix Dashboard running based on the <code>spring cloud</code> command that you ran during the <strong>Cloud Bus</strong> exercise.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Visit <a href="http://localhost:7979" class="bare">http://localhost:7979</a>.
+You should see output similar to the following:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/hystrix_dashboard_1.png" alt="hystrix dashboard 1">
+</div>
+</div>
+</li>
+<li>
+<p>Paste <a href="http://localhost:8081/hystrix.stream" class="bare">http://localhost:8081/hystrix.stream</a> into the text field and click <strong>Monitor Stream</strong>.
+You should see output similar to the following:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/hystrix_dashboard_2.png" alt="hystrix dashboard 2">
+</div>
+</div>
+</li>
+<li>
+<p>In a browser, access the fortune-teller-ui application at <a href="http://localhost:8081" class="bare">http://localhost:8081</a> and show that the circuit breaker is registering successful requests.</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/fortunes_3.png" alt="fortunes 3">
+</div>
+</div>
+</li>
+<li>
+<p>Stop the fortune-teller-fortune-service application.</p>
+</li>
+<li>
+<p>Access the fortune-teller-ui application at <a href="http://localhost:8081" class="bare">http://localhost:8081</a>, see that the &#8220;fallback fortune&#8221; is being returned, and show that the circuit breaker is registering short-circuited requests.</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/fortunes_4.png" alt="fortunes 4">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/fortunes_5.png" alt="fortunes 5">
+</div>
+</div>
+</li>
+<li>
+<p>Restart the fortune-teller-fortune-service application.</p>
+</li>
+<li>
+<p>Continue to access the fortune-teller-ui and watch the dashboard.
+After the fortune-teller-fortune-service has re-registered with Eureka and the fortune-teller-ui load balancer caches are refreshed, you will see the circuit breaker recover.
+You should then start getting random fortunes again!</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_swapping_out_fallback_behavior_with_cloud_bus">Swapping Out Fallback Behavior with Cloud Bus</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Spring Cloud Bus is not only useful for swapping out log levels. Let&#8217;s use it to swap out a developer defined property instead.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Take a look at <code>io.spring.cloud.samples.fortuneteller.ui.FortuneProperties</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>@ConfigurationProperties(prefix = "fortune") <b class="conum">(1)</b>
+@RefreshScope <b class="conum">(2)</b>
+public class FortuneProperties {
+
+    private String fallbackFortune = "Your future is unclear."; <b class="conum">(3)</b>
+
+    public String getFallbackFortune() {
+        return fallbackFortune;
+    }
+
+    public void setFallbackFortune(String fallbackFortune) {
+        this.fallbackFortune = fallbackFortune;
+    }
+
+}</pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p><code>FortuneProperties</code> is annotated as a <code>@ConfigurationProperties</code> object. These objects provide a type-safe mechanism for handling configuration. Learn more from the following  <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config-typesafe-configuration-properties">documentation</a>.</p>
+</li>
+<li>
+<p><code>FortuneProperties</code> is also scoped as <code>@RefreshScope</code>. This will cause it to be reinitialized based on configuration changes. Learn more from the following <a href="http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_refresh_scope">documentation</a>.</p>
+</li>
+<li>
+<p><code>fallbackFortune</code> has a default value that is equivalent to what we have in our config repo. Config Server configuration overrides any local configuration by default, so this value is not actually causing the runtime behavior of our app at this time.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Stop the <code>fortune-teller-fortune-service</code> application.</p>
+</li>
+<li>
+<p>Access the fortune-teller-ui application at <a href="http://localhost:8081" class="bare">http://localhost:8081</a>, see that the &#8220;fallback fortune&#8221; is being returned.</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/fortunes_4.png" alt="fortunes 4">
+</div>
+</div>
+</li>
+<li>
+<p>In your local clone of the config repo fork, edit line 9 such that the <code>fortune</code> section looks like the following:</p>
+<div class="listingblock">
+<div class="content">
+<pre>fortune:
+  fallbackFortune: Today is your lucky day!</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Save, commit, and push your changes to GitHub.</p>
+</li>
+<li>
+<p>You should see a statement in the fortune-teller-ui application&#8217;s logs indicating that the <code>fortune.fallbackFortune</code> property was refreshed:</p>
+<div class="listingblock">
+<div class="content">
+<pre>2016-10-16 13:31:39.516  INFO 74890 --- [afka-listener-1] o.s.cloud.bus.event.RefreshListener      : Received remote refresh request. Keys refreshed [fortune.fallbackFortune]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Access the fortune-teller-ui application at <a href="http://localhost:8081" class="bare">http://localhost:8081</a>, see that the new &#8220;fallback fortune&#8221; is being returned.</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/lucky_day.png" alt="lucky day">
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_correlated_logs_with_spring_cloud_sleuth">Correlated Logs with Spring Cloud Sleuth</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now we&#8217;re going to look at how to correlate logs across a call graph using Spring Cloud Sleuth, which automatically instruments Spring Cloud applications and adds correlation information to our logs.</p>
+</div>
+<div class="paragraph">
+<p>To look at the latency involved in a call graph, we&#8217;re interested in four events:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Client Send (CS):</strong> the client sends a call to the remote service</p>
+</li>
+<li>
+<p><strong>Server Receive (SR):</strong> the call is received by the remote service and work begins</p>
+</li>
+<li>
+<p><strong>Server Send (SS):</strong> the server has completed work and responds to the client</p>
+</li>
+<li>
+<p><strong>Client Receive (CR):</strong> the client receives the response from the remote service</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Correlating these four events will help us determine how long an operation took and what the potential sources of latency are.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add the following dependency to the <code>pom.xml</code> of both <code>fortune-teller-fortune-service</code> and <code>fortune-teller-ui</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This dependency is for Zipkin, but it adds the Sleuth dependencies transitively, and we&#8217;ll need Zipkin for the next exercise.</p>
+</div>
+</li>
+<li>
+<p>Let&#8217;s add some logs representing our events of interest. Add a <code>Logger</code> to <code>io.spring.cloud.samples.fortuneteller.ui.FortuneService</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>Logger logger = LoggerFactory.getLogger(FortuneService.class);</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Edit the definition of <code>FortuneService.randomFortune</code> to include logs for client send and client receive events:</p>
+<div class="listingblock">
+<div class="content">
+<pre>@HystrixCommand(fallbackMethod = "fallbackFortune")
+public Fortune randomFortune() {
+  logger.info("CS: calling http://fortunes/random.");
+  Fortune fortune = restTemplate.getForObject("http://fortunes/random", Fortune.class);
+  logger.info("CR: received response from http://fortunes/random.");
+  return fortune;
+}</pre>
+</div>
+</div>
+</li>
+<li>
+<p>In <code>fortune-teller-ui</code>, edit the definition of <code>io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController.randomFortune</code> to include logs for server receive and server send events:</p>
+<div class="listingblock">
+<div class="content">
+<pre>@RequestMapping("/random")
+public Fortune randomFortune() {
+  logger.debug("Handling request to /random!");
+  logger.info("SR: received call to /random.");
+  List&lt;Fortune&gt; randomFortunes = repository.randomFortunes(new PageRequest(0, 1));
+  logger.info("SS: responding to call to /random.");
+  return randomFortunes.get(0);
+}</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Rebuild and restart both applications.</p>
+</li>
+<li>
+<p>Access <a href="http://localhost:8081" class="bare">http://localhost:8081</a> in the browser. You should see the correlated log events in each applications' logs:</p>
+<div class="listingblock">
+<div class="title">fortune-teller-ui</div>
+<div class="content">
+<pre>2016-10-16 14:06:31.625  INFO [ui,d64d19d2235e760,1c25e1b87727b7ae,false] 79564 --- [rtuneService-10] i.s.c.s.fortuneteller.ui.FortuneService  : CS: calling http://fortunes/random.
+2016-10-16 14:06:31.631  INFO [ui,d64d19d2235e760,1c25e1b87727b7ae,false] 79564 --- [rtuneService-10] i.s.c.s.fortuneteller.ui.FortuneService  : CR: received response from http://fortunes/random.</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">fortune-teller-fortune-service</div>
+<div class="content">
+<pre>2016-10-16 14:06:31.628  INFO [fortunes,d64d19d2235e760,6b492a088a2ea3f2,false] 79517 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : SR: received call to /random.
+2016-10-16 14:06:31.629  INFO [fortunes,d64d19d2235e760,6b492a088a2ea3f2,false] 79517 --- [nio-8080-exec-7] i.s.c.s.f.f.FortuneController            : SS: responding to call to /random.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Pay attention to the section of the log statement that appears in square brackets immediately after the log level:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[fortunes,d64d19d2235e760,6b492a088a2ea3f2,false]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The tokens represent the following:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The application name (<code>fortunes</code>)</p>
+</li>
+<li>
+<p>The trace ID (<code>d64d19d2235e760</code>)</p>
+</li>
+<li>
+<p>The span ID (<code>6b492a088a2ea3f2</code>)</p>
+</li>
+<li>
+<p>Should this trace be exported to Zipkin (<code>false</code>)</p>
+<div class="paragraph">
+<p>To learn more about this terminology, see this <a href="http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_features_2">section</a> of the Spring Cloud Sleuth documentation.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_distributed_tracing_with_spring_cloud_sleuth_and_zipkin">Distributed Tracing with Spring Cloud Sleuth and Zipkin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now let&#8217;s take a look at Zipkin, which is a distributed tracing system purpose built for this type of latency analysis. Luckily we already have Zipkin running, and our app has already been emitting span data to Zipkin.</p>
+</div>
+<div class="paragraph">
+<p>Because Sleuth is <em>sampling</em> the requests at a rate of 10%, you may need to generate some additional load on the application in order to get enough data into Zipkin to be useful. Alternatively, you can adjust the sampling rate directly on the <code>fortune-teller-ui</code> application by adding the following to <code>application.yml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>spring:
+  sleuth:
+    sampler:
+      percentage: 0.5 #Sample 50%</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and then restarting the application.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Visit <a href="http://localhost:9411" class="bare">http://localhost:9411</a> in the browser. You&#8217;ll see the Zipkin landing page, which allows you to query for tracing data. Currently <em>fortunes</em> is the service selected for query, so the query will find traces including span data for it. Click on the <strong>Find Traces</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_1.png" alt="zipkin 1">
+</div>
+</div>
+</li>
+<li>
+<p>You&#8217;ll see a list of traces from which to choose. Click on one to drill down into that trace. In this screenshot, I&#8217;ve hovered over a trace with a total latency of 34.244ms, and 88% of that time was spent in the <em>fortunes</em> service:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_2.png" alt="zipkin 2">
+</div>
+</div>
+</li>
+<li>
+<p>After drilling down into a trace, you&#8217;ll see a graph of all of the spans in that trace. In this case we have four. I&#8217;m drilling down into the span that captures the <em>ui</em> service call to the <em>fortunes</em> service:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_3.png" alt="zipkin 3">
+</div>
+</div>
+</li>
+<li>
+<p>After drilling down into that service call, I get a popup window containing all of the event data (i.e. the CS/SR/SS/CR timestamped events) and tag data (key/value pairs such as <code>http.method</code>):</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_4.png" alt="zipkin 4">
+</div>
+</div>
+</li>
+<li>
+<p>Finally, because Zipkin has access to a nice sample of all of the traffic flowing through my service graph, it can generate a dependency graph of all of the services. Click on <strong>Dependencies</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_4b.png" alt="zipkin 4b">
+</div>
+</div>
+<div class="paragraph">
+<p>And you&#8217;ll see the graph:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/zipkin_5.png" alt="zipkin 5">
+</div>
+</div>
+</li>
 </ol>
 </div>
 </div>
@@ -701,7 +1061,7 @@ POST /monitor                  200</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-10-13 18:09:18 EDT
+Last updated 2016-10-17 16:02:22 BST
 </div>
 </div>
 </body>

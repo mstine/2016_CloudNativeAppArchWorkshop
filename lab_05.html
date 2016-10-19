@@ -423,127 +423,663 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry</h1>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cloud Foundry is an open source platform for running cloud native application architectures. It operates under the tenants of the Cloud Foundry haiku:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Here is my code.</p>
+</div>
+<div class="paragraph">
+<p>Run it on the cloud for me.</p>
+</div>
+<div class="paragraph">
+<p>I do not care how.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>Cloud Foundry does the work of analyzing your application and determining its runtime needs through a process called <code>cf push</code>, which uploads your code and launches a <em>buildpack</em> to create a runtime package including things like a JDK. This package, called a <em>droplet</em> is launched in a Linux container using the same underlying technology as Docker. Cloud Foundry also handles <em>provisioning</em> of and <em>binding</em> your application to marketplace services like databases, as well as other non-functional concerns like aggregating and providing access to application metrics and logs.</p>
+</div>
+<div class="paragraph">
+<p>In this lab, we&#8217;ll leverage <em>Spring Cloud Services (SCS)</em>, which is a Cloud Foundry marketplace version of the same services you ran on your laptop. These services are made available via <em>Pivotal Web Services (PWS)</em>, which is a SaaS version of Cloud Foundry operated by Pivotal.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dependency_changes">Dependency Changes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First, we&#8217;ll make a few changes to the dependencies present in your applications. We&#8217;ll be removing the Cloud Bus Kafka and Zipkin dependencies, as these services are not yet available on PWS. Also, we&#8217;ll leverage some SCS specific starters. They are a superset of the starters you already used for Spring Cloud OSS, and include features such as opinionated security based on Cloud Foundry service bindings.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>First, we need to alter the dependency management block of the parent pom, at <code>${COURSE_HOME}/labs/initial/fortune-teller/pom.xml</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependencyManagement&gt;
+  &lt;dependencies&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+			&lt;version&gt;Brixton.SR5&lt;/version&gt;
+			&lt;type&gt;pom&lt;/type&gt;
+			&lt;scope&gt;import&lt;/scope&gt;
+		&lt;/dependency&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-cloud-services-dependencies&lt;/artifactId&gt;
+			&lt;version&gt;1.1.2.RELEASE&lt;/version&gt;
+			&lt;type&gt;pom&lt;/type&gt;
+			&lt;scope&gt;import&lt;/scope&gt;
+		&lt;/dependency&gt;
+	&lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>In <code>fortune-teller-fortune-service/pom.xml</code>, replace all of the dependencies matching the pattern <code>spring-cloud-starter-*</code> with these SCS dependencies:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-services-starter-config-client&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-services-starter-service-registry&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>In <code>fortune-teller-ui/pom.xml</code>, replace all of the dependencies matching the pattern <code>spring-cloud-starter-*</code> with these SCS dependencies:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-services-starter-config-client&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-services-starter-service-registry&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-services-starter-circuit-breaker&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_build_and_push">Build and Push!</h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Return to the <em>Fortune Teller</em> application directory that you finished in <a href="lab_03.html">Lab 3</a>:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ cd $COURSE_HOME/labs/initial/fortune-teller</pre>
-</div>
-</div>
-</li>
-<li>
 <p>Using Maven, build and package the application:</p>
 <div class="listingblock">
 <div class="content">
-<pre>$ mvn package</pre>
+<pre>$ ./mvnw package</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Login to PWS using the Cloud Foundry CLI, and target the space you were assigned in the class spreadsheet:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ cf api api.run.pivotal.io
+Setting api endpoint to api.run.pivotal.io...
+OK
+
+API endpoint:   https://api.run.pivotal.io (API version: 2.63.0)
+Not logged in. Use 'cf login' to log in.
+
+$ cf login
+API endpoint: https://api.run.pivotal.io
+
+Email&gt; mstine@pivotal.io
+
+Password&gt;
+Authenticating...
+OK
+
+Select an org (or press enter to skip):
+1. mstine-org
+2. oreilly-class
+
+Org&gt; 2
+Targeted org oreilly-class
+
+Select a space (or press enter to skip):
+1. development
+2. instructor
+3. student01
+4. student02
+5. student03
+6. student04
+7. student05
+8. student06
+9. student07
+10. student08
+11. student09
+12. student10
+13. student11
+14. student12
+15. student13
+16. student14
+17. student15
+18. student16
+19. student17
+20. student18
+21. student19
+22. student20
+23. student21
+24. student22
+25. student23
+26. student24
+27. student25
+
+Space&gt; 2
+Targeted space instructor
+
+API endpoint:   https://api.run.pivotal.io (API version: 2.63.0)
+User:           mstine@pivotal.io
+Org:            oreilly-class
+Space:          instructor</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Next, we&#8217;ll use a script to create instances of each of the marketplace services that we need. Take a look at <code>scripts/create_services.sh</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>#!/usr/bin/env bash
+
+cf cs p-mysql 100mb fortunes-db
+cf cs p-config-server standard config-server -c '{"git": { "uri": "https://github.com/mstine/config-repo" } }'
+cf cs p-service-registry standard service-registry
+cf cs p-circuit-breaker-dashboard standard circuit-breaker-dashboard</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Maven will automatically download all of <em>Fortune Teller</em>'s dependencies. This may take a few moments.</p>
+<p>This script is creating each of the following:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>A MySQL database</p>
 </li>
 <li>
-<p>Push the Spring Cloud services:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ cf push -f manifest-services.yml</pre>
-</div>
-</div>
+<p>A Config Server, pointing to a Git repository (if you like, point at your own fork by editing the script!)</p>
+</li>
+<li>
+<p>A Service Registry, based on Eureka</p>
+</li>
+<li>
+<p>A Circuit Breaker Dashboard, based on the Hystrix Dashboard</p>
 <div class="paragraph">
-<p>This will push the Spring Cloud Config Server, a Eureka server, and a Hystrix Dashboard, all with random routes.</p>
+<p>The SCS services are provisioned asynchronously, so you&#8217;ll need to check on their status before continuing.</p>
+</div>
+</li>
+</ul>
 </div>
 </li>
 <li>
-<p>Edit <code>scripts/create_services.sh</code> to add the random routes that were generated for you:</p>
-<div class="listingblock">
-<div class="content">
-<pre>cf cups config-service -p '{"uri":"http://config-server-fluxional-suttee.cfapps.io"}'
-cf cups service-registry -p '{"uri":"http://eureka-unprevalent-toper.cfapps.io"}'
-cf cs elephantsql turtle fortunes-db</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Run <code>scripts/create-services.sh</code> to create the services that you need:</p>
+<p>Execute the script:</p>
 <div class="listingblock">
 <div class="content">
 <pre>$ scripts/create_services.sh
-Creating user provided service config-service in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
+Creating service instance fortunes-db in org oreilly-class / space instructor as mstine@pivotal.io...
 OK
-Creating user provided service service-registry in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
+Creating service instance config-server in org oreilly-class / space instructor as mstine@pivotal.io...
 OK
-Creating service fortunes-db in org platform-eng / space nfjs-workshop as mstine@pivotal.io...
-OK</pre>
+
+Create in progress. Use 'cf services' or 'cf service config-server' to check operation status.
+Creating service instance service-registry in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+Create in progress. Use 'cf services' or 'cf service service-registry' to check operation status.
+Creating service instance circuit-breaker-dashboard in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+Create in progress. Use 'cf services' or 'cf service circuit-breaker-dashboard' to check operation status.</pre>
 </div>
 </div>
-</li>
-<li>
-<p>Push the microservices:</p>
+<div class="paragraph">
+<p>Then check the status of all services:</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre>$ cf push -f manifest-apps.yml</pre>
+<pre>$ cf services
+Getting services in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+name                        service                       plan       bound apps   last operation
+circuit-breaker-dashboard   p-circuit-breaker-dashboard   standard                create in progress
+config-server               p-config-server               standard                create in progress
+fortunes-db                 p-mysql                       100mb                   create succeeded
+service-registry            p-service-registry            standard                create in progress</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This will push the fortunes service and the ui application.</p>
+<p>You&#8217;ll want to keep executing this command (e.g. by using the UNIX command <code>watch</code>) until all of the services have the status <code>create succeeded</code>:</p>
 </div>
-</li>
-<li>
-<p>In a browser, access the fortunes-ui application at the route that was created for you:</p>
-<div class="paragraph">
-<p><span class="image"><img src="Common/images/fortunes_1.png" alt="fortunes 1"></span></p>
-</div>
-</li>
-<li>
-<p>Now, in another browser tab, access the Hystrix Dashboard at the route that was created for you.
-Enter the route for the UI application and click the &#8220;Monitor Stream.&#8221;</p>
-<div class="paragraph">
-<p><span class="image"><img src="Common/images/fortunes_2.png" alt="fortunes 2"></span></p>
-</div>
-</li>
-<li>
-<p>Access the fortunes-ui and show that the circuit breaker is registering successful requests.</p>
-<div class="paragraph">
-<p><span class="image"><img src="Common/images/fortunes_3.png" alt="fortunes 3"></span></p>
-</div>
-</li>
-<li>
-<p>Stop the fortunes application:</p>
 <div class="listingblock">
 <div class="content">
-<pre>$ cf stop fortunes</pre>
+<pre>$ cf s
+Getting services in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+name                        service                       plan       bound apps   last operation
+circuit-breaker-dashboard   p-circuit-breaker-dashboard   standard                create succeeded
+config-server               p-config-server               standard                create succeeded
+fortunes-db                 p-mysql                       100mb                   create succeeded
+service-registry            p-service-registry            standard                create succeeded</pre>
 </div>
 </div>
 </li>
 <li>
-<p>Access the fortunes-ui and see that the &#8220;fallback fortune&#8221; is being returned.</p>
-<div class="paragraph">
-<p><span class="image"><img src="Common/images/fortunes_4.png" alt="fortunes 4"></span></p>
-</div>
-</li>
-<li>
-<p>Access the fortunes-ui and show that the circuit breaker is registering short-circuited requests.</p>
-<div class="paragraph">
-<p><span class="image"><img src="Common/images/fortunes_5.png" alt="fortunes 5"></span></p>
-</div>
-</li>
-<li>
-<p>Start the fortunes application:</p>
+<p>Next we&#8217;ll use <code>cf push</code> to push the <code>fortune-teller</code> applications. Take a look at <code>fortune-teller/manifest.yml</code> (look for numbered annotations in the listing):</p>
 <div class="listingblock">
 <div class="content">
-<pre>$ cf start fortunes</pre>
+<pre>applications:
+- name: fortune-service <b class="conum">(1)</b>
+  memory: 1024M <b class="conum">(2)</b>
+  host: fortunes-${random-word} <b class="conum">(3)</b>
+  path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar <b class="conum">(4)</b>
+  services: <b class="conum">(5)</b>
+  - fortunes-db
+  - config-server
+  - service-registry
+- name: fortune-ui
+  memory: 1024M
+  host: fortunes-ui-${random-word}
+  path: fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+  services:
+  - config-server
+  - service-registry
+  - circuit-breaker-dashboard
+env: <b class="conum">(6)</b>
+  CF_TARGET: https://api.run.pivotal.io</pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Gives the application a name unique to your space.</p>
+</li>
+<li>
+<p>Sets the maximum available memory in the Linux container allocated to your application.</p>
+</li>
+<li>
+<p>Give the application a hostname. The hostname must be unique to the domain you&#8217;re using (in this case, <code>cfapps.io</code>), so <code>${random-word}</code> will attach a randomly generated token from a dictionary.</p>
+</li>
+<li>
+<p>Indicates the application artifact (in this case, your Spring Boot jar file) to be uploaded.</p>
+</li>
+<li>
+<p>Indicates the services that should be bound to your application.</p>
+</li>
+<li>
+<p>Indicates environment variables to be set in the environment of your running application process.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Push the applications. This command will automatically pickup a <code>manifest.yml</code> file if present in the current directory (look for numbered annotations in the listing):</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ cf push
+Using manifest file /Users/mstine/personal/2016/2016_CloudNativeAppArchWorkshop/labs/complete/fortune-teller-cf/manifest.yml
+
+Creating app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io... <b class="conum">(1)</b>
+OK
+
+Creating route fortunes-larcenous-indifferentism.cfapps.io... <b class="conum">(2)</b>
+OK
+
+Binding fortunes-larcenous-indifferentism.cfapps.io to fortune-service... <b class="conum">(3)</b>
+OK
+
+Uploading fortune-service... <b class="conum">(4)</b>
+Uploading app files from: /var/folders/lw/4n6b80d97d528w14f6jv7hgr0000gn/T/unzipped-app320499011
+Uploading 1.3M, 136 files
+Done uploading
+OK
+Binding service fortunes-db to app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io... <b class="conum">(5)</b>
+OK
+Binding service config-server to app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+Binding service service-registry to app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+Starting app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io... <b class="conum">(6)</b>
+Downloaded ruby_buildpack
+Downloading dotnet_core_buildpack_beta...
+Downloaded python_buildpack
+Downloading dotnet_core_buildpack...
+Downloaded dotnet_core_buildpack
+Downloaded dotnet_core_buildpack_beta
+Downloaded nodejs_buildpack
+Downloaded go_buildpack
+Downloaded php_buildpack
+Creating container
+Successfully created container
+Downloading app package...
+Downloaded app package (50.2M)
+Staging...
+-----&gt; Java Buildpack Version: v3.9 (offline) | https://github.com/cloudfoundry/java-buildpack.git#b050954 <b class="conum">(7)</b>
+-----&gt; Downloading Open Jdk JRE 1.8.0_101 from https://java-buildpack.cloudfoundry.org/openjdk/trusty/x86_64/openjdk-1.8.0_101.tar.gz (found in cache)
+       Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.0s)
+-----&gt; Downloading Open JDK Like Memory Calculator 2.0.2_RELEASE from https://java-buildpack.cloudfoundry.org/memory-calculator/trusty/x86_64/memory-calculator-2.0.2_RELEASE.tar.gz (found in cache)
+       Memory Settings: -Xss349K -Xmx681574K -XX:MaxMetaspaceSize=104857K -Xms681574K -XX:MetaspaceSize=104857K <b class="conum">(8)</b>
+-----&gt; Downloading Spring Auto Reconfiguration 1.10.0_RELEASE from https://java-buildpack.cloudfoundry.org/auto-reconfiguration/auto-reconfiguration-1.10.0_RELEASE.jar (found in cache)
+Staging complete
+Uploading droplet, build artifacts cache...
+Uploading build artifacts cache...
+Uploading droplet... <b class="conum">(9)</b>
+Uploaded build artifacts cache (108B)
+Uploaded droplet (95.3M)
+Uploading complete
+Destroying container
+Successfully destroyed container <b class="conum">(10)</b>
+
+0 of 1 instances running, 1 starting <b class="conum">(11)</b>
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+1 of 1 instances running
+
+App started
+
+OK
+
+App fortune-service was started using this command `CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_jre/bin/java-buildpack-memory-calculator-
+2.0.2_RELEASE -memorySizes=metaspace:64m..,stack:228k.. -memoryWeights=heap:65,metaspace:10,native:15,stack:10 -memoryInitials=heap:100%,metasp
+ace:100% -stackThreads=300 -totMemory=$MEMORY_LIMIT) &amp;&amp; JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jd
+k_jre/bin/killjava.sh $CALCULATED_MEMORY" &amp;&amp; SERVER_PORT=$PORT eval exec $PWD/.java-buildpack/open_jdk_jre/bin/java $JAVA_OPTS -cp $PWD/. org.s
+pringframework.boot.loader.JarLauncher` <b class="conum">(12)</b>
+
+Showing health and status for app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io...
+OK <b class="conum">(13)</b>
+
+requested state: started
+instances: 1/1
+usage: 1G x 1 instances
+urls: fortunes-larcenous-indifferentism.cfapps.io
+last uploaded: Wed Oct 19 00:05:14 UTC 2016
+stack: cflinuxfs2
+buildpack: java-buildpack=v3.9-offline-https://github.com/cloudfoundry/java-buildpack.git#b050954 java-main open-jdk-like-jre=1.8.0_101 open-jd
+k-like-memory-calculator=2.0.2_RELEASE spring-auto-reconfiguration=1.10.0_RELEASE
+
+     state     since                    cpu      memory         disk           details
+#0   running   2016-10-19 01:07:23 AM   146.0%   508.7M of 1G   179.8M of 1G
+Creating app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io... <b class="conum">(14)</b>
+OK
+
+Creating route fortunes-ui-phosphaturic-mezereon.cfapps.io...
+OK
+
+Binding fortunes-ui-phosphaturic-mezereon.cfapps.io to fortune-ui...
+OK
+
+Uploading fortune-ui...
+Uploading app files from: /var/folders/lw/4n6b80d97d528w14f6jv7hgr0000gn/T/unzipped-app655916839
+Uploading 1.5M, 149 files
+Done uploading
+OK
+Binding service config-server to app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+Binding service service-registry to app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+Binding service circuit-breaker-dashboard to app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+Starting app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io...
+Downloading binary_buildpack...
+Downloading nodejs_buildpack...
+Downloading dotnet_core_buildpack...
+Downloading python_buildpack...
+Downloading go_buildpack...
+Downloaded nodejs_buildpack
+Downloading php_buildpack...
+Downloaded go_buildpack
+Downloading dotnet_core_buildpack_beta...
+Downloaded dotnet_core_buildpack
+Downloading staticfile_buildpack...
+Downloaded python_buildpack
+Downloading java_buildpack...
+Downloaded binary_buildpack
+Downloading ruby_buildpack...
+Downloaded ruby_buildpack
+Downloaded dotnet_core_buildpack_beta
+Downloaded staticfile_buildpack
+Downloaded php_buildpack
+Downloaded java_buildpack
+Creating container
+Successfully created container
+Downloading app package...
+Downloaded app package (41.7M)
+Staging...
+-----&gt; Java Buildpack Version: v3.9 (offline) | https://github.com/cloudfoundry/java-buildpack.git#b050954
+-----&gt; Downloading Open Jdk JRE 1.8.0_101 from https://java-buildpack.cloudfoundry.org/openjdk/trusty/x86_64/openjdk-1.8.0_101.tar.gz (found in cache)
+       Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.1s)
+-----&gt; Downloading Open JDK Like Memory Calculator 2.0.2_RELEASE from https://java-buildpack.cloudfoundry.org/memory-calculator/trusty/x86_64/memory-calculator-2.0.2_RELEASE.tar.gz (found in cache)
+       Memory Settings: -XX:MetaspaceSize=104857K -XX:MaxMetaspaceSize=104857K -Xss349K -Xmx681574K -Xms681574K
+-----&gt; Downloading Spring Auto Reconfiguration 1.10.0_RELEASE from https://java-buildpack.cloudfoundry.org/auto-reconfiguration/auto-reconfiguration-1.10.0_RELEASE.jar (found in cache)
+Exit status 0
+Staging complete
+Uploading droplet, build artifacts cache...
+Uploading build artifacts cache...
+Uploading droplet...
+Uploaded build artifacts cache (108B)
+Uploaded droplet (86.7M)
+Uploading complete
+Destroying container
+Successfully destroyed container
+
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+0 of 1 instances running, 1 starting
+1 of 1 instances running
+
+App started
+
+OK
+
+App fortune-ui was started using this command `CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_jre/bin/java-buildpack-memory-calculator-2.0.2
+_RELEASE -memorySizes=metaspace:64m..,stack:228k.. -memoryWeights=heap:65,metaspace:10,native:15,stack:10 -memoryInitials=heap:100%,metaspace:1
+00% -stackThreads=300 -totMemory=$MEMORY_LIMIT) &amp;&amp; JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre
+/bin/killjava.sh $CALCULATED_MEMORY" &amp;&amp; SERVER_PORT=$PORT eval exec $PWD/.java-buildpack/open_jdk_jre/bin/java $JAVA_OPTS -cp $PWD/. org.spring
+framework.boot.loader.JarLauncher`
+
+Showing health and status for app fortune-ui in org oreilly-class / space instructor as mstine@pivotal.io...
+OK
+
+requested state: started
+instances: 1/1
+usage: 1G x 1 instances
+urls: fortunes-ui-phosphaturic-mezereon.cfapps.io
+last uploaded: Wed Oct 19 00:07:41 UTC 2016
+stack: cflinuxfs2
+buildpack: java-buildpack=v3.9-offline-https://github.com/cloudfoundry/java-buildpack.git#b050954 java-main open-jdk-like-jre=1.8.0_101 open-jd
+k-like-memory-calculator=2.0.2_RELEASE spring-auto-reconfiguration=1.10.0_RELEASE
+
+     state     since                    cpu      memory         disk         details
+#0   running   2016-10-19 01:09:18 AM   217.7%   476.7M of 1G   170M of 1G</pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>The application is created via an API call to Cloud Foundry.</p>
+</li>
+<li>
+<p>A route is created via an API call to Cloud Foundry.</p>
+</li>
+<li>
+<p>The route is bound to the application. This means any accesses to this route via HTTP will be routed to instances of this application.</p>
+</li>
+<li>
+<p>The application code is uploaded to the Cloud Foundry blobstore.</p>
+</li>
+<li>
+<p>Each of the marketplace services created by the script is bound to the application.</p>
+</li>
+<li>
+<p>The staging process is started.</p>
+</li>
+<li>
+<p>Cloud Foundry determines that the Java buildpack should be run on this application and starts it.</p>
+</li>
+<li>
+<p>The Cloud Foundry Java buildpack automatically calculates the JVM memory settings optimal for the chosen maximum memory for the Linux container.</p>
+</li>
+<li>
+<p>The droplet created by running the Java buildpack is uploaded to the Cloud Foundry blobstore.</p>
+</li>
+<li>
+<p>The Linux container used to stage the application is destroyed.</p>
+</li>
+<li>
+<p>A new Linux container is created, and the JVM process is started.</p>
+</li>
+<li>
+<p>When the process becomes healthy, the CLI reports the command used to start the process.</p>
+</li>
+<li>
+<p>The CLI finishes the <code>push</code> process by reporting on the health and status of the application.</p>
+</li>
+<li>
+<p>The process completes for each application in the manifest.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Access <a href="http://console.run.pivotal.io" class="bare">http://console.run.pivotal.io</a> in the browser. You&#8217;ll be redirected to login:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_1.png" alt="pws 1">
 </div>
 </div>
 </li>
 <li>
-<p>Continue to access the fortunes-ui and watch the dashboard.
-After the fortunes service has re-registered with Eureka and the fortunes-ui load balancer caches are refreshed, you will see the circuit breaker recover.
-You should then start getting random fortunes again!</p>
+<p>Choose your organization and space from the menu on the left:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_2.png" alt="pws 2">
+</div>
+</div>
+</li>
+<li>
+<p>You should see your two applications running:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_3.png" alt="pws 3">
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Services</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_4.png" alt="pws 4">
+</div>
+</div>
+</li>
+<li>
+<p>You&#8217;ll see the marketplace service instances created by the script here:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_5.png" alt="pws 5">
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Service Registry</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_6.png" alt="pws 6">
+</div>
+</div>
+</li>
+<li>
+<p>Then click <strong>Manage</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_8.png" alt="pws 8">
+</div>
+</div>
+</li>
+<li>
+<p>This should open another browser window/tab. You may be challenged for authentication again. Then you&#8217;ll see the Service Registry dashboard, along with the registrations for your two apps:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_10.png" alt="pws 10">
+</div>
+</div>
+</li>
+<li>
+<p>Return to the <strong>Services</strong> screen and click <strong>Circuit Breaker</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_7.png" alt="pws 7">
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Manage</strong>:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_9.png" alt="pws 9">
+</div>
+</div>
+</li>
+<li>
+<p>Generate some traffic to your <code>fortune-teller-ui</code> application&#8217;s assigned route. You should see usage in the Circuit Breaker Dashboard:</p>
+<div class="imageblock">
+<div class="content">
+<img src="Common/images/pws_11.png" alt="pws 11">
+</div>
+</div>
+</li>
+<li>
+<p>You can examine the logs for your applications by using the <code>cf logs</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ cf logs fortune-service
+cf logs fortune-service
+Connected, tailing logs for app fortune-service in org oreilly-class / space instructor as mstine@pivotal.io...
+
+2016-10-19T01:35:02.57+0100 [APP/PROC/WEB/0]OUT 2016-10-19 00:35:02.572  INFO 14 --- [nio-8080-exec-2] i.s.c.s.f.f.FortuneController
+ : SR: received call to /random.
+2016-10-19T01:35:02.60+0100 [APP/PROC/WEB/0]OUT 2016-10-19 00:35:02.601  INFO 14 --- [nio-8080-exec-2] i.s.c.s.f.f.FortuneController            : SS: responding to call to /random.
+2016-10-19T01:35:02.60+0100 [RTR/2]      OUT fortunes-larcenous-indifferentism.cfapps.io - [19/10/2016:00:35:02.569 +0000] "GET /random HTTP/1$1" 200 0 56 "-" "Java/1.8.0_101" 10.10.66.121:11217 x_forwarded_for:"54.83.133.0" x_forwarded_proto:"https" vcap_request_id:62badf23-d93d-4801$4ef5-375f408ee3d0 response_time:0.034239541 app_id:92876397-6bd6-4714-98de-6212d04208fd app_index:0
+...</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -552,7 +1088,7 @@ You should then start getting random fortunes again!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-10-12 22:21:00 EDT
+Last updated 2016-10-19 01:35:27 BST
 </div>
 </div>
 </body>
