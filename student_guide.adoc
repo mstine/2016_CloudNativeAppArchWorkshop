@@ -16,14 +16,20 @@ include::prerequisites.adoc[]
 
 == First Things First
 
-Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1zYFoGLMoiZIpAnyRQU7wLtdvEbL2LeDQ6e2Jbnl85PQ/edit#gid=0[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
+Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1Ipwp19BU63mVCJ8eNtN5oauqfl7gd0Dib3J1wWIyiAk/edit#gid=0[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
 
 == Schedule
 
- 9:00 AM - 10:00 AM:: *Session 1*: _Cloud Native Architecture Overview_
-10:00 AM - 10:30 AM:: Morning Brain Break
-10:30 AM - 12:30 PM:: *Session 2*: _Cloud Native Architecture Labs_
+ 8:00 AM -  9:00 AM:: Early Registration
+ 9:00 AM -  9:30 AM:: Workshop + Prerequisites Setup
+ 9:30 AM - 10:00 AM:: *Session 1*: _Cloud Native Architecture Overview_
+10:30 AM - 11:00 AM:: Morning Brain Break
+11:00 AM - 11:45 AM:: *Lab 1*: _Getting Started with Spring Boot_
+11:45 AM - 12:30 PM:: *Lab 2*: _Introspection, Monitoring, and Metrics using Spring Boot Actuator_
 12:30 PM - 1:30 PM:: Lunch
+ 1:30 PM - 2:30 PM:: *Lab 3*: _Composing Cloud Native Architectures with Spring Cloud_
+ 2:30 PM - 3:30 PM:: *Lab 4*: _Operating Cloud Native Architectures with Spring Cloud_
+ 3:30 PM - 4:30 PM:: *Lab 5*: _Deploying Cloud Native Architectures to Cloud Foundry_
 
 == Course Materials
 
