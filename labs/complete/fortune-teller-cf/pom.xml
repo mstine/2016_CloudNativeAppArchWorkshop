@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.1.RELEASE</version>
+        <version>1.4.2.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -47,14 +47,14 @@
         <dependency>
           <groupId>org.springframework.cloud</groupId>
           <artifactId>spring-cloud-dependencies</artifactId>
-          <version>Brixton.SR5</version>
+          <version>Camden.SR4</version>
           <type>pom</type>
           <scope>import</scope>
         </dependency>
         <dependency>
           <groupId>io.pivotal.spring.cloud</groupId>
           <artifactId>spring-cloud-services-dependencies</artifactId>
-          <version>1.1.2.RELEASE</version>
+          <version>1.4.1.RELEASE</version>
           <type>pom</type>
           <scope>import</scope>
         </dependency>

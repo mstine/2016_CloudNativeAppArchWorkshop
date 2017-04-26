@@ -2,20 +2,20 @@ To be successful, you'll need certain prerequisite tools installed on the laptop
 
 - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[Java 8 JDK] (not just JRE)
 
-- Install the Spring Boot CLI, version 1.4.1.RELEASE. Choose an installation method from the Spring Boot https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[reference docs].
+- Install the Spring Boot CLI, version 1.5.3.RELEASE. Choose an installation method from the Spring Boot https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[reference docs].
 
 - Once you have installed the Spring Boot CLI, ensure that it is on your execution path with the following command:
 +
 ----
 $ spring --version
-Spring CLI v1.4.1.RELEASE
+Spring CLI v1.5.3.RELEASE
 ----
 +
 Assuming that this command works and you see the correct version, install the Spring Cloud CLI plugin using the following command:
 +
 ----
-$ spring install org.springframework.cloud:spring-cloud-cli:1.2.1.RELEASE
-Installing into: /Users/mstine/.sdkman/candidates/springboot/1.4.1.RELEASE/lib/ext
+$ spring install org.springframework.cloud:spring-cloud-cli:1.3.1.RELEASE
+Installing into: /Users/mstine/.sdkman/candidates/springboot/1.5.3.RELEASE/lib/ext
 Resolving dependencies...
 ----
 +

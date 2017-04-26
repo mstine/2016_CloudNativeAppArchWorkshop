@@ -21,7 +21,18 @@ In this lab, we'll leverage _Spring Cloud Services (SCS)_, which is a Cloud Foun
 
 First, we'll make a few changes to the dependencies present in your applications. We'll be removing the Cloud Bus Kafka and Zipkin dependencies, as these services are not yet available on PWS. Also, we'll leverage some SCS specific starters. They are a superset of the starters you already used for Spring Cloud OSS, and include features such as opinionated security based on Cloud Foundry service bindings.
 
-. First, we need to alter the dependency management block of the parent pom, at `${COURSE_HOME}/labs/initial/fortune-teller/pom.xml`:
+. First we need to change our parent pom's parent, at `${COURSE_HOME}/labs/initial/fortune-teller/pom.xml`:
++
+----
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.4.2.RELEASE</version>
+    <relativePath/>
+</parent>
+----
+
+. Next, we need to alter the dependency management block of the parent pom, at `${COURSE_HOME}/labs/initial/fortune-teller/pom.xml`:
 +
 ----
 <dependencyManagement>
@@ -29,14 +40,14 @@ First, we'll make a few changes to the dependencies present in your applications
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-dependencies</artifactId>
-			<version>Brixton.SR5</version>
+			<version>Camden.SR4</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.pivotal.spring.cloud</groupId>
 			<artifactId>spring-cloud-services-dependencies</artifactId>
-			<version>1.1.2.RELEASE</version>
+			<version>1.4.1.RELEASE</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>

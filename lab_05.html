@@ -461,7 +461,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>First, we need to alter the dependency management block of the parent pom, at <code>${COURSE_HOME}/labs/initial/fortune-teller/pom.xml</code>:</p>
+<p>First we need to change our parent pom&#8217;s parent, at <code>${COURSE_HOME}/labs/initial/fortune-teller/pom.xml</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;1.4.2.RELEASE&lt;/version&gt;
+    &lt;relativePath/&gt;
+&lt;/parent&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Next, we need to alter the dependency management block of the parent pom, at <code>${COURSE_HOME}/labs/initial/fortune-teller/pom.xml</code>:</p>
 <div class="listingblock">
 <div class="content">
 <pre>&lt;dependencyManagement&gt;
@@ -469,14 +482,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 		&lt;dependency&gt;
 			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
 			&lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
-			&lt;version&gt;Brixton.SR5&lt;/version&gt;
+			&lt;version&gt;Camden.SR4&lt;/version&gt;
 			&lt;type&gt;pom&lt;/type&gt;
 			&lt;scope&gt;import&lt;/scope&gt;
 		&lt;/dependency&gt;
 		&lt;dependency&gt;
 			&lt;groupId&gt;io.pivotal.spring.cloud&lt;/groupId&gt;
 			&lt;artifactId&gt;spring-cloud-services-dependencies&lt;/artifactId&gt;
-			&lt;version&gt;1.1.2.RELEASE&lt;/version&gt;
+			&lt;version&gt;1.4.1.RELEASE&lt;/version&gt;
 			&lt;type&gt;pom&lt;/type&gt;
 			&lt;scope&gt;import&lt;/scope&gt;
 		&lt;/dependency&gt;
@@ -1091,7 +1104,7 @@ Connected, tailing logs for app fortune-service in org oreilly-class / space ins
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-10-18 20:39:01 EDT
+Last updated 2017-04-26 08:42:39 EDT
 </div>
 </div>
 </body>
