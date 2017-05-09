@@ -15,6 +15,16 @@ _A completed version of this lab is found at `$COURSE_HOME/labs/complete/hello-s
 </dependency>
 ----
 
+. To the main YAML document in `application.yml` add the following:
++
+----
+management:
+  security:
+    enabled: false
+----
++
+By default, Actuator insists these endpoints to be secured. Since this is only a learning environment, we'll turn off this expectation.
+
 == Introspection Endpoints
 
 . Build the application:
