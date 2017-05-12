@@ -123,7 +123,7 @@ $ java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 
 Spring Boot provides an endpoint (http://localhost:8080/health) that allows for the notion of various health indicators.
 
-. Create the class `io.pivotal.spring.FlappingHealthIndicator` and into it paste the following code:
+. Create the class `io.pivotal.spring.hellospringboot.FlappingHealthIndicator` and into it paste the following code:
 +
 ----
 @Component
@@ -182,7 +182,7 @@ $ java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 Spring Boot provides an endpoint (http://localhost:8080/metrics) that exposes several automatically collected metrics for your application.
 It also allows for the creation of custom metrics.
 
-. Create the class `io.pivotal.spring.GreetingService` and into it paste the following code:
+. Create the class `io.pivotal.spring.hellospringboot.GreetingService` and into it paste the following code:
 +
 ----
 @Component
@@ -203,7 +203,7 @@ public class GreetingService {
 +
 This class is using the `@Autowired` `CounterService` to count the number of times that the `getGreeting()` method has been invoked.
 
-. Refactor the contents of the class `io.pivotal.spring.HelloSpringBootApplication`:
+. Refactor the contents of the class `io.pivotal.spring.hellospringboot.HelloSpringBootApplication`:
 +
 ----
 @Autowired

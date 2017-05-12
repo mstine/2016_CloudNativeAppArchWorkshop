@@ -464,10 +464,10 @@ Unpack that zip file at <code>$COURSE_HOME/labs/initial</code>.</p>
 <p>Import the project&#8217;s <code>pom.xml</code> into your editor/IDE of choice.</p>
 </li>
 <li>
-<p>Add a <code>@RestController</code> annotation to the class <code>io.pivotal.spring.HelloSpringBootApplication</code>. Don&#8217;t forget to add the necessary <code>import</code> statement.</p>
+<p>Add a <code>@RestController</code> annotation to the class <code>io.pivotal.spring.hellospringboot.HelloSpringBootApplication</code>. Don&#8217;t forget to add the necessary <code>import</code> statement.</p>
 </li>
 <li>
-<p>Add the following request handler to the class <code>io.pivotal.spring.HelloSpringBootApplication</code>:</p>
+<p>Add the following request handler to the class <code>io.pivotal.spring.hellospringboot.HelloSpringBootApplication</code>:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping("/")
@@ -513,7 +513,7 @@ public String hello() {
 <div class="listingblock">
 <div class="content">
 <pre>2015-12-06 17:17:30.507  INFO 60277 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 8080 (http)
-2015-12-06 17:17:30.511  INFO 60277 --- [           main] io.pivotal.spring.HelloSpringBootApplication    : Started HelloSpringBootApplication in 3.201 seconds (JVM running for 3.846)</pre>
+2015-12-06 17:17:30.511  INFO 60277 --- [           main] io.pivotal.spring.hellospringboot.HelloSpringBootApplication    : Started HelloSpringBootApplication in 3.201 seconds (JVM running for 3.846)</pre>
 </div>
 </div>
 </li>
@@ -593,7 +593,7 @@ public String hello() {
 <div class="listingblock">
 <div class="content">
 <pre>2015-12-06 17:19:11.649  INFO 60588 --- [           main] .s.b.c.e.j.JettyEmbeddedServletContainer : Jetty started on port(s) 8080 (http/1.1)
-2015-12-06 17:19:11.654  INFO 60588 --- [           main] io.pivotal.spring.HelloSpringBootApplication    : Started HelloSpringBootApplication in 3.781 seconds (JVM running for 4.217)</pre>
+2015-12-06 17:19:11.654  INFO 60588 --- [           main] io.pivotal.spring.hellospringboot.HelloSpringBootApplication    : Started HelloSpringBootApplication in 3.781 seconds (JVM running for 4.217)</pre>
 </div>
 </div>
 </li>
@@ -626,7 +626,7 @@ public String hello() {
 </div>
 </li>
 <li>
-<p>To the class <code>io.pivotal.spring.HelloSpringBootApplication</code>, add a <code>greeting</code> field and inject its value:</p>
+<p>To the class <code>io.pivotal.spring.hellospringboot.HelloSpringBootApplication</code>, add a <code>greeting</code> field and inject its value:</p>
 <div class="listingblock">
 <div class="content">
 <pre>@Value("${greeting}")
@@ -635,7 +635,7 @@ String greeting;</pre>
 </div>
 </li>
 <li>
-<p>Also <code>io.pivotal.spring.HelloSpringBootApplication</code>, change the return statement of <code>hello()</code> to the following:</p>
+<p>Also <code>io.pivotal.spring.hellospringboot.HelloSpringBootApplication</code>, change the return statement of <code>hello()</code> to the following:</p>
 <div class="listingblock">
 <div class="content">
 <pre>return String.format("%s World!", greeting);</pre>
@@ -786,7 +786,7 @@ greeting: Hola</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-25 00:58:36 BST
+Last updated 2017-05-12 15:22:07 BST
 </div>
 </div>
 </body>
