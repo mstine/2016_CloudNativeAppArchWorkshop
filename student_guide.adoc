@@ -1,11 +1,11 @@
-= Delivering Cloud Native Architectures with Spring Cloud and Cloud Foundry
+= Cloud Native Architecture Patterns with Spring Cloud and Cloud Foundry
 
-Student Guide
+Devoxx UK Hands-on Lab Student Guide
 
 == Instructor Details
 
 Matt Stine (https://twitter.com/mstine[@mstine]) +
-Product Owner, Spring +
+Cloud Native Architect +
 Strategic Product Organization +
 Pivotal +
 mstine@pivotal.io
@@ -16,28 +16,12 @@ include::prerequisites.adoc[]
 
 == First Things First
 
-Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1Ipwp19BU63mVCJ8eNtN5oauqfl7gd0Dib3J1wWIyiAk/edit#gid=0[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
-
-== Schedule
-
- 8:00 AM -  9:00 AM:: Early Registration
- 9:00 AM -  9:30 AM:: Workshop + Prerequisites Setup
- 9:30 AM - 10:35 AM:: *Session 1*: _Cloud Native Architecture Overview_
-10:35 AM - 10:50 AM:: Morning Brain Break
-10:50 AM - 11:30 AM:: *Session 1*: _Cloud Native Architecture Overview - CONTINUED!_
-11:30 AM - 12:00 PM:: *Lab 1*: _Getting Started with Spring Boot_
-12:00 PM - 1:30 PM:: Lunch
- 1:30 PM - 2:15 PM:: *Lab 2*: _Introspection, Monitoring, and Metrics using Spring Boot Actuator_
- 2:15 PM - 3:15 PM:: *Lab 3*: _Composing Cloud Native Architectures with Spring Cloud_
- 3:15 PM - 4:15 PM:: *Lab 4*: _Operating Cloud Native Architectures with Spring Cloud_
- 4:15 PM - 5:15 PM:: *Lab 5*: _Deploying Cloud Native Architectures to Cloud Foundry_
+Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1YQLGw7TejTQrmsK-4Mi0ixCIRpq4495VvlPsqEm1eHM/edit?usp=sharing[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
 
 == Course Materials
 
-* Session 1 (link:session_01.pdf[Slides])
-* Session 2
-** link:lab_01.html[Lab 1 - Getting Started with Spring Boot]
-** link:lab_02.html[Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator]
-** link:lab_03.html[Lab 3 - Composing Cloud Native Architectures with Spring Cloud]
-** link:lab_04.html[Lab 4 - Operating Cloud Native Architectures with Spring Cloud]
-** link:lab_05.html[Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry]
+* link:lab_01.html[Lab 1 - Getting Started with Spring Boot]
+* link:lab_02.html[Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator]
+* link:lab_03.html[Lab 3 - Composing Cloud Native Architectures with Spring Cloud]
+* link:lab_04.html[Lab 4 - Operating Cloud Native Architectures with Spring Cloud]
+* link:lab_05.html[Lab 5 - Deploying Cloud Native Architectures to Cloud Foundry]

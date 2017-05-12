@@ -615,7 +615,7 @@ We now have a solution to that problem!</p>
 </div>
 </li>
 <li>
-<p>We also need to add the Spring Cloud Bus dependencies to our microservices. Add the following to <code>pom.xml</code> for both <code>fortune-teller-fortune-service</code> and <code>fortue-teller-ui</code>:</p>
+<p>We also need to add the Spring Cloud Bus dependencies to our microservices. Add the following to <code>pom.xml</code> for both <code>fortune-teller-fortune-service</code> and <code>fortune-teller-ui</code>:</p>
 <div class="listingblock">
 <div class="content">
 <pre>&lt;dependency&gt;
@@ -896,8 +896,24 @@ public class FortuneProperties {
 <p>This dependency is for Zipkin, but it adds the Sleuth dependencies transitively, and we&#8217;ll need Zipkin for the next exercise.</p>
 </div>
 </li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+We also need to remove the <code>spring-cloud-starter-bus-kafka</code> dependency for this lab. There is a bug (fixed, but not released yet) where the Kafka binder overrides Sleuth&#8217;s logging format. A patch release will soon fix this.
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>Let&#8217;s add some logs representing our events of interest. Add a <code>Logger</code> to <code>io.spring.cloud.samples.fortuneteller.ui.FortuneService</code>:</p>
+<p>Let&#8217;s add some logs representing our events of interest. In <code>fortune-teller-ui</code>, add a <code>Logger</code> to <code>io.spring.cloud.samples.fortuneteller.ui.FortuneService</code>:</p>
 <div class="listingblock">
 <div class="content">
 <pre>Logger logger = LoggerFactory.getLogger(FortuneService.class);</pre>
@@ -919,7 +935,7 @@ public Fortune randomFortune() {
 </div>
 </li>
 <li>
-<p>In <code>fortune-teller-ui</code>, edit the definition of <code>io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController.randomFortune</code> to include logs for server receive and server send events:</p>
+<p>In <code>fortune-teller-fortune-service</code>, edit the definition of <code>io.spring.cloud.samples.fortuneteller.fortuneservice.FortuneController.randomFortune</code> to include logs for server receive and server send events:</p>
 <div class="listingblock">
 <div class="content">
 <pre>@RequestMapping("/random")
@@ -1064,7 +1080,7 @@ public Fortune randomFortune() {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-24 19:58:36 EDT
+Last updated 2017-05-12 10:26:15 BST
 </div>
 </div>
 </body>

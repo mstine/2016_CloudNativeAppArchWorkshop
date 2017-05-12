@@ -168,7 +168,7 @@ This configuration specifies the model to DDL setting to be used by Hibernate. I
 . Build the application:
 +
 ----
-$ ./mvnw package
+$ ../mvnw package
 ----
 
 . Run the application:

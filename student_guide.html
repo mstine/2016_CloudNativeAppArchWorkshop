@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.5">
-<title>Delivering Cloud Native Architectures with Spring Cloud and Cloud Foundry</title>
+<title>Cloud Native Architecture Patterns with Spring Cloud and Cloud Foundry</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -420,13 +420,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Delivering Cloud Native Architectures with Spring Cloud and Cloud Foundry</h1>
+<h1>Cloud Native Architecture Patterns with Spring Cloud and Cloud Foundry</h1>
 </div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Student Guide</p>
+<p>Devoxx UK Hands-on Lab Student Guide</p>
 </div>
 </div>
 </div>
@@ -435,7 +435,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>Matt Stine (<a href="https://twitter.com/mstine">@mstine</a>)<br>
-Product Owner, Spring<br>
+Cloud Native Architect<br>
 Strategic Product Organization<br>
 Pivotal<br>
 <a href="mailto:mstine@pivotal.io">mstine@pivotal.io</a></p>
@@ -469,13 +469,25 @@ Spring CLI v1.5.3.RELEASE</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>$ spring install org.springframework.cloud:spring-cloud-cli:1.3.1.RELEASE
+<pre>$ spring install org.springframework.cloud:spring-cloud-cli:1.3.3.RELEASE
 Installing into: /Users/mstine/.sdkman/candidates/springboot/1.5.3.RELEASE/lib/ext
 Resolving dependencies...</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>You should see similar output, but the installation location will depend on the method you chose to install the Spring Boot CLI. The output above is based on an SDKMAN!-based installation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+if you followed the prerequisites sent out prior to the conference, you installed version 1.3.1. That version has a bug that has been fixed. You will need to <code>spring uninstall</code> that version and then <code>spring install</code> version 1.3.3.
+</td>
+</tr>
+</table>
 </div>
 </li>
 <li>
@@ -505,73 +517,13 @@ Pivotal Web Services is a hosted instance of <a href="http://cloudfoundry.org">C
 <h2 id="_first_things_first">First Things First</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in <a href="https://docs.google.com/spreadsheets/d/1Ipwp19BU63mVCJ8eNtN5oauqfl7gd0Dib3J1wWIyiAk/edit#gid=0">this Google spreadsheet</a>. I will invite you to a organization and space to use for this class.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_schedule">Schedule</h2>
-<div class="sectionbody">
-<div class="dlist">
-<dl>
-<dt class="hdlist1">8:00 AM -  9:00 AM</dt>
-<dd>
-<p>Early Registration</p>
-</dd>
-<dt class="hdlist1">9:00 AM -  9:30 AM</dt>
-<dd>
-<p>Workshop + Prerequisites Setup</p>
-</dd>
-<dt class="hdlist1">9:30 AM - 10:35 AM</dt>
-<dd>
-<p><strong>Session 1</strong>: <em>Cloud Native Architecture Overview</em></p>
-</dd>
-<dt class="hdlist1">10:35 AM - 10:50 AM</dt>
-<dd>
-<p>Morning Brain Break</p>
-</dd>
-<dt class="hdlist1">10:50 AM - 11:30 AM</dt>
-<dd>
-<p><strong>Session 1</strong>: <em>Cloud Native Architecture Overview - CONTINUED!</em></p>
-</dd>
-<dt class="hdlist1">11:30 AM - 12:00 PM</dt>
-<dd>
-<p><strong>Lab 1</strong>: <em>Getting Started with Spring Boot</em></p>
-</dd>
-<dt class="hdlist1">12:00 PM - 1:30 PM</dt>
-<dd>
-<p>Lunch</p>
-</dd>
-<dt class="hdlist1">1:30 PM - 2:15 PM</dt>
-<dd>
-<p><strong>Lab 2</strong>: <em>Introspection, Monitoring, and Metrics using Spring Boot Actuator</em></p>
-</dd>
-<dt class="hdlist1">2:15 PM - 3:15 PM</dt>
-<dd>
-<p><strong>Lab 3</strong>: <em>Composing Cloud Native Architectures with Spring Cloud</em></p>
-</dd>
-<dt class="hdlist1">3:15 PM - 4:15 PM</dt>
-<dd>
-<p><strong>Lab 4</strong>: <em>Operating Cloud Native Architectures with Spring Cloud</em></p>
-</dd>
-<dt class="hdlist1">4:15 PM - 5:15 PM</dt>
-<dd>
-<p><strong>Lab 5</strong>: <em>Deploying Cloud Native Architectures to Cloud Foundry</em></p>
-</dd>
-</dl>
+<p>Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in <a href="https://docs.google.com/spreadsheets/d/1YQLGw7TejTQrmsK-4Mi0ixCIRpq4495VvlPsqEm1eHM/edit?usp=sharing">this Google spreadsheet</a>. I will invite you to a organization and space to use for this class.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_course_materials">Course Materials</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Session 1 (<a href="session_01.pdf">Slides</a>)</p>
-</li>
-<li>
-<p>Session 2</p>
 <div class="ulist">
 <ul>
 <li>
@@ -591,15 +543,12 @@ Pivotal Web Services is a hosted instance of <a href="http://cloudfoundry.org">C
 </li>
 </ul>
 </div>
-</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-24 19:58:36 EDT
+Last updated 2017-05-12 10:47:44 BST
 </div>
 </div>
 </body>
