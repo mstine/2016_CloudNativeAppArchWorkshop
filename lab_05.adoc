@@ -162,7 +162,7 @@ Space:          instructor
 ----
 #!/usr/bin/env bash
 
-cf cs p-mysql 100mb fortunes-db
+cf cs cleardb spark fortunes-db
 cf cs p-config-server standard config-server -c '{"git": { "uri": "https://github.com/mstine/config-repo" } }'
 cf cs p-service-registry standard service-registry
 cf cs p-circuit-breaker-dashboard standard circuit-breaker-dashboard
@@ -207,7 +207,7 @@ OK
 name                        service                       plan       bound apps   last operation
 circuit-breaker-dashboard   p-circuit-breaker-dashboard   standard                create in progress
 config-server               p-config-server               standard                create in progress
-fortunes-db                 p-mysql                       100mb                   create succeeded
+fortunes-db                 cleardb                       spark                   create succeeded
 service-registry            p-service-registry            standard                create in progress
 ----
 +
@@ -221,7 +221,7 @@ OK
 name                        service                       plan       bound apps   last operation
 circuit-breaker-dashboard   p-circuit-breaker-dashboard   standard                create succeeded
 config-server               p-config-server               standard                create succeeded
-fortunes-db                 p-mysql                       100mb                   create succeeded
+fortunes-db                 cleardb                       spark                   create succeeded
 service-registry            p-service-registry            standard                create succeeded
 ----
 
