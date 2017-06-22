@@ -1,6 +1,6 @@
 = Cloud Native Architecture Patterns with Spring Cloud and Cloud Foundry
 
-Devoxx UK Hands-on Lab Student Guide
+Devoxx Poland Hands-on Lab Student Guide
 
 == Instructor Details
 
@@ -16,7 +16,7 @@ include::prerequisites.adoc[]
 
 == First Things First
 
-Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1YQLGw7TejTQrmsK-4Mi0ixCIRpq4495VvlPsqEm1eHM/edit?usp=sharing[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
+Add your name and the email address you used to sign up for Pivotal Web Services to an empty row in https://docs.google.com/spreadsheets/d/1YbJLcjEmdsZd3jKZ8eiMUAJCPKZsFNyTEKzlmLWKfVw/edit#gid=0[this Google spreadsheet]. I will invite you to a organization and space to use for this class.
 
 == Course Materials
 
